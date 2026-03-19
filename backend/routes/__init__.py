@@ -1,1 +1,2 @@
 from routes.user_routes import router as user_router
+from routes.menu_routes import router as menu_router
