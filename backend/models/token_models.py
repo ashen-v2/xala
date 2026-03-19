@@ -6,5 +6,4 @@ class TokenBase(SQLModel):
 
 class TokenData(SQLModel):
     user_id: int
-    role: int
 
