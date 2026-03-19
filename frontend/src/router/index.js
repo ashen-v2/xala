@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Register from '../views/register.vue'
+import Register from '../views/Register.vue'
 
 const routes = [
     {path: '/register', name: 'Register', component: Register}

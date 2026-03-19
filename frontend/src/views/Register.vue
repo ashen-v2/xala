@@ -1,86 +1,66 @@
 <script setup>
 import { ref } from 'vue'
+import api from '../api/axios'
+import { useMutation } from '@tanstack/vue-query'
 
-const valid = ref(false)
-const firstname = ref('')
-const lastname = ref('')
+const name = ref('')
+const store_name = ref('')
 const email = ref('')
+const password = ref('')
 
-const nameRules = [
-  (value) => !!value || 'Name is required.',
-  (value) => (value && value.length <= 10) || 'Name must be less than 10 characters.',
-]
+const { mutate, isPending, isError, error } = useMutation({
+  mutationFn: (newUserData) => {
+    return api.post('/v1/users', newUserData)
+  },
+  onSuccess: () => {
+    alert('Account created!')
+    // router.push('/login')
+  }
+})
 
-const emailRules = [
-  (value) => !!value || 'E-mail is required.',
-  (value) => /.+@.+\..+/.test(value) || 'E-mail must be valid.',
-]
-
-function submit (){
-    if (valid.value) {
-        // Handle form submission
-        console.log("Form is valid! Sending data:", {
-        first: firstname.value,
-        last: lastname.value,
-        email: email.value
-        })
-        alert("Success! Check the console.")
-    } else {
-        console.log('Form is invalid. Please correct the errors.');
+async function register() {
+    mutate({
+        name: name.value,
+        store_name: store_name.value,
+        email: email.value,
+        password: password.value
+        
+    })
+    if (register_data.status === 201) {
+        alert('Registration successful!')
     }
+    
 }
-
 </script>
-
 <template>
-  <v-form v-model="valid", @submit.prevent="submit">
-    <v-container>
-      <v-row>
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-text-field
-            v-model="firstname"
-            :counter="10"
-            :rules="nameRules"
-            label="First name"
-            required
-          ></v-text-field>
-        </v-col>
+    <div class="register">
+        <h1>Register</h1>
+        <form @submit.prevent="register">
+            <div>
+                <label for="name">Username:</label>
+                <input type="text" id="name" v-model="name" required />
+            </div>
+             <div>
+                <label for="store name">Store Name:</label>
+                <input type="text" id="store_name" v-model="store_name" required />
+            </div>
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" v-model="email" required />
+            </div>
+            <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" v-model="password" required />
+            </div>
+            <button type="submit" :disabled="isPending">
+                 {{ isPending ? 'Registering...' : 'Register' }}
+            </button>
 
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-text-field
-            v-model="lastname"
-            :counter="10"
-            :rules="nameRules"
-            label="Last name"
-            required
-          ></v-text-field>
-        </v-col>
-
-        <v-col
-          cols="12"
-          md="4"
-        >
-          <v-text-field
-            v-model="email"
-            :rules="emailRules"
-            label="E-mail"
-            required
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12">
-          <v-btn type="submit" color="primary" :disabled="!valid">
-            Register Store
-          </v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
-  </v-form>
+            <p v-if="isError" class="text-red-500">
+            Error: {{ error.response?.data?.detail || 'Something went wrong' }}
+            </p>
+        </form>
+    </div>
 </template>
+<style scoped>
+</style>
