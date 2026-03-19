@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '../api/axios'
 import { useMutation } from '@tanstack/vue-query'
 
+const router = useRouter()
 const name = ref('')
 const store_name = ref('')
 const email = ref('')
@@ -14,7 +16,7 @@ const { mutate, isPending, isError, error } = useMutation({
   },
   onSuccess: () => {
     alert('Account created!')
-    // router.push('/login')
+    router.push('/login')
   }
 })
 
