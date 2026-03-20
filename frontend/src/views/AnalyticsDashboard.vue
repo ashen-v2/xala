@@ -1,11 +1,7 @@
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
 import { useAnalytics } from '../composables/useAnalytics'
-
-const router = useRouter()
-const authStore = useAuthStore()
+import AuthTopNav from '../components/AuthTopNav.vue'
 
 const {
   scope,
@@ -190,19 +186,6 @@ const monthlyItemSeries = computed(() => [
     data: monthlyQuantityChart.value.values
   }
 ])
-
-function goToTrackSales() {
-  router.push('/track-sales')
-}
-
-function goToMenuManagement() {
-  router.push('/menu-management')
-}
-
-function logout() {
-  authStore.logout()
-  router.push('/login')
-}
 </script>
 
 <template>
@@ -212,14 +195,10 @@ function logout() {
         <div>
           <p class="analytics-kicker">Performance Dashboard</p>
           <h1 class="analytics-title">Analytics</h1>
-          <p class="analytics-subtitle">Empty-first charts, then data overlays for sparse months and weeks.</p>
+          <p class="analytics-subtitle">Get Business Insights, uncover patterns, and see your orders with more details</p>
         </div>
 
-        <div class="header-actions">
-          <button type="button" class="btn-soft" @click="goToTrackSales">Track Sales</button>
-          <button type="button" class="btn-soft" @click="goToMenuManagement">Menu Management</button>
-          <button type="button" class="btn-soft" @click="logout">Log out</button>
-        </div>
+        <AuthTopNav />
       </header>
 
       <p v-if="analyticsError" class="status status--error">
@@ -435,12 +414,6 @@ function logout() {
   margin: 0.2rem 0 0;
   font-size: 0.8rem;
   color: #7c5b45;
-}
-
-.header-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
 }
 
 .btn-soft {

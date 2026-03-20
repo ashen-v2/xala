@@ -1,11 +1,8 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
 import { useTrackSales } from '../composables/useTrackSales'
+import AuthTopNav from '../components/AuthTopNav.vue'
 
-const router = useRouter()
-const authStore = useAuthStore()
 const {
   menuItems,
   cartItems,
@@ -116,15 +113,6 @@ async function onCreateOrder() {
     actionError.value = error?.response?.data?.detail || 'Failed to create order.'
   }
 }
-
-function goToMenuManagement() {
-  router.push('/menu-management')
-}
-
-function logout() {
-  authStore.logout()
-  router.push('/login')
-}
 </script>
 
 <template>
@@ -134,14 +122,10 @@ function logout() {
         <div>
           <p class="sales-kicker">Track Sales</p>
           <h1 class="sales-title">Quick Order</h1>
-          <p class="sales-subtitle">Tap a card to add, adjust quantity inline, and checkout fast.</p>
+          <p class="sales-subtitle">Tap a card to add, adjust quantity inline, and track sales fast and easy</p>
         </div>
 
-        <div class="sales-actions">
-          <button type="button" class="btn-soft" @click="router.push('/analytics')">Analytics</button>
-          <button type="button" class="btn-soft" @click="goToMenuManagement">Menu Management</button>
-          <button type="button" class="btn-soft" @click="logout">Log out</button>
-        </div>
+        <AuthTopNav />
       </header>
 
       <p v-if="isMenuLoading || isCartLoading" class="status status--info">Loading items...</p>
@@ -286,11 +270,6 @@ function logout() {
   margin: 0.2rem 0 0;
   font-size: 0.78rem;
   color: #7c5b45;
-}
-
-.sales-actions {
-  display: flex;
-  gap: 0.45rem;
 }
 
 .btn-soft,

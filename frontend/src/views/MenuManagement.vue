@@ -1,13 +1,10 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
 import { useMenu } from '../composables/useMenu'
 import MenuCard from '../components/menu/MenuCard.vue'
 import MenuItemForm from '../components/menu/MenuItemForm.vue'
+import AuthTopNav from '../components/AuthTopNav.vue'
 
-const router = useRouter()
-const authStore = useAuthStore()
 const {
   items,
   isLoading,
@@ -91,53 +88,20 @@ async function handleDelete(item) {
     deletingId.value = null
   }
 }
-
-function logout() {
-  authStore.logout()
-  router.push('/login')
-}
 </script>
 
 <template>
-  <section class="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,214,176,0.7),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(255,237,213,0.9),_transparent_30%),linear-gradient(180deg,_#fffaf4_0%,_#fff_100%)] px-3 py-3 text-[#442718] md:px-4 lg:px-6">
+  <section class="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(255,214,176,0.7),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(255,237,213,0.9),_transparent_30%),linear-gradient(180deg,_#fffaf4_0%,_#fff_100%)] px-3 py-3 pb-28 text-[#442718] md:px-4 lg:px-6">
     <div class="mx-auto flex min-h-[calc(100svh-1.5rem)] max-w-[1320px] flex-col gap-3">
       <header class="grid gap-3 rounded-3xl border border-[#f4c7a7] bg-[linear-gradient(145deg,_#fff7ed,_#fffdf7)] p-3 shadow-[0_14px_32px_rgba(128,58,22,0.10)] md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
         <div class="space-y-1">
-          <p class="text-[0.72rem] font-semibold uppercase tracking-[0.18em] text-[#9a3b18]">Menu Management</p>
-          <h1 class="m-0 text-[1.35rem] font-semibold leading-tight text-[#492819] md:text-[1.7rem]">Menu Management</h1>
-          <p class="m-0 max-w-2xl text-sm text-[#7c5b45]">Create, edit, and delete menu cards in a compact dashboard designed to keep the next four items visible without heavy scrolling.</p>
+          <p class="menu-kicker"> Management</p>
+          <h1 class="menu-title">Menu Management</h1>
+          <p class="menu-subtitle">Create, edit, and delete menu items</p>
+          <p class="menu-subtitle">.</p>
         </div>
 
-        <div class="flex flex-wrap gap-2">
-          <button
-            type="button"
-            class="rounded-xl bg-[#fff2e2] px-3.5 py-2 text-sm font-bold text-[#7b341c] shadow-sm transition hover:bg-[#ffe4cf]"
-            @click="router.push('/analytics')"
-          >
-            Analytics
-          </button>
-          <button
-            type="button"
-            class="rounded-xl bg-[#fff2e2] px-3.5 py-2 text-sm font-bold text-[#7b341c] shadow-sm transition hover:bg-[#ffe4cf]"
-            @click="router.push('/track-sales')"
-          >
-            Track Sales
-          </button>
-          <button
-            type="button"
-            class="rounded-xl bg-gradient-to-r from-[#fb923c] to-[#ef4444] px-3.5 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-105"
-            @click="toggleCreatePanel"
-          >
-            {{ showCreatePanel ? 'Hide Create Form' : 'Add New Item' }}
-          </button>
-          <button
-            type="button"
-            class="rounded-xl bg-[#fef3c7] px-3.5 py-2 text-sm font-bold text-[#713f12] shadow-sm transition hover:bg-[#fde68a]"
-            @click="logout"
-          >
-            Log out
-          </button>
-        </div>
+        <AuthTopNav />
       </header>
 
       <div v-if="showCreatePanel || editingItem" class="grid gap-3 lg:grid-cols-[minmax(0,380px)_1fr] lg:items-start">
@@ -183,6 +147,43 @@ function logout() {
       </section>
 
       <p v-if="isDeleting && deletingId" class="rounded-2xl bg-sky-100 px-3 py-2 text-sm text-sky-900">Deleting item...</p>
+
+      <div class="fixed bottom-3 left-3 right-3 z-30 mx-auto max-w-[1320px] rounded-2xl border border-[#f4c7a7] bg-[linear-gradient(145deg,_#fff7ed,_#fffdf7)] p-3 shadow-[0_14px_30px_rgba(128,58,22,0.18)] md:left-4 md:right-4 lg:left-6 lg:right-6">
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <p class="m-0 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[#9a3b18]">Menu Actions</p>
+            <p class="m-0.5 text-xs text-[#7c5b45]">Use this quick action to open the create form.</p>
+          </div>
+          <button
+            type="button"
+            class="rounded-xl bg-gradient-to-r from-[#fb923c] to-[#ef4444] px-3.5 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-105"
+            @click="toggleCreatePanel"
+          >
+            {{ showCreatePanel ? 'Hide Create Form' : 'Add New Item' }}
+          </button>
+        </div>
+      </div>
     </div>
   </section>
 </template>
+<style scoped>
+.menu-title {
+  margin: 0.1rem 0 0;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  color: #492819;
+}
+.menu-kicker {
+  margin: 0;
+  color: #9a3b18;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.67rem;
+  font-weight: 700;
+}
+.menu-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: #7c5b45;
+}
+</style>
