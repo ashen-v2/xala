@@ -2,9 +2,11 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 from models.token_models import TokenData
 from db.session import get_session
-from models.cart_models import Cart, CartItem, CartItemCreate, CartItemWithProduct, CartItemRead, CartItemUpdate
+from models.cart_models import Cart, CartItem, CartItemCreate, CartItemRead, CartItemUpdate
 from models.menu_models import MenuItem
 from dependancies.dependancies import get_current_user
+from errors.errors_cart import CartItemNotFoundException
+from errors.errors_auth import AuthorizationError
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
@@ -45,23 +47,23 @@ def remove_from_cart(cart_item_id: int, session: Session = Depends(get_session),
     """Remove an item from the cart."""
     cart_item = session.exec(select(CartItem).where(CartItem.id == cart_item_id)).first()
     if not cart_item:
-        return {"message": "Cart item not found"}
+        raise CartItemNotFoundException()
     cart = session.exec(select(Cart).where(Cart.id == cart_item.cart_id)).first()
     if cart.user_id != current_user.user_id:
-        return {"message": "Not authorized to delete this item"}
+        raise AuthorizationError(detail="Not authorized to remove this item")
     session.delete(cart_item)
     session.commit()
-    return {"message": "Item removed from cart"}
+    return
 
 @router.patch("/{cart_item_id}", status_code=200)
 def update_cart_item(cart_item_id: int, cart_item_update: CartItemUpdate, session: Session = Depends(get_session), current_user : TokenData=Depends(get_current_user)):
     """Update the quantity of an item in the cart."""
     cart_item = session.exec(select(CartItem).where(CartItem.id == cart_item_id)).first()
     if not cart_item:
-        return {"message": "Cart item not found"}
+        raise CartItemNotFoundException()
     cart = session.exec(select(Cart).where(Cart.id == cart_item.cart_id)).first()
     if cart.user_id != current_user.user_id:
-        return {"message": "Not authorized to update this item"}
+        raise AuthorizationError(detail="Not authorized to update this item")
     if cart_item_update.quantity is not None:
         cart_item.quantity = cart_item_update.quantity
     session.commit()

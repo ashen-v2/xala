@@ -1,6 +1,5 @@
 from sqlmodel import SQLModel, Field
 from datetime import datetime, timezone
-from models.menu_models import MenuItem
 
 class Cart(SQLModel, table=True):
     __tablename__ = "carts"
@@ -25,10 +24,6 @@ class CartItemRead(SQLModel):
     product_id: int
     product_name: str
     quantity: int
-
-class CartItemWithProduct(SQLModel):
-    cart_item: CartItem
-    product: MenuItem
 
 class CartItemUpdate(SQLModel):
     quantity: int | None = None
