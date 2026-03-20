@@ -22,6 +22,8 @@ async def health_check():
 v1_router.include_router(user_router)
 # adding menu routes to the v1 router
 v1_router.include_router(menu_router)
+# adding cart routes to the v1 router
+v1_router.include_router(cart_router)
 
 # adding v1 router to the main app
 app.include_router(v1_router)
