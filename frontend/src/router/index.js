@@ -1,14 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Register from '../views/Register.vue'
 import Login from '../views/Login.vue'
-import Dashboard from '../views/Dashboard.vue'
+import MenuManagement from '../views/MenuManagement.vue'
 import { useAuthStore } from '../stores/auth'
 
 const routes = [
-    { path: '/', redirect: '/dashboard' },
+    { path: '/', redirect: '/menu-management' },
     { path: '/register', name: 'Register', component: Register, meta: { public: true } },
     { path: '/login', name: 'Login', component: Login, meta: { public: true } },
-    { path: '/dashboard', name: 'Dashboard', component: Dashboard }
+    { path: '/menu-management', name: 'MenuManagement', component: MenuManagement },
+    { path: '/dashboard', redirect: '/menu-management' }
 ]
 
 const router = createRouter({
@@ -24,7 +25,7 @@ router.beforeEach((to) => {
     }
 
     if (to.meta.public && authStore.token) {
-        return { path: '/dashboard' }
+        return { path: '/menu-management' }
     }
 
     return true

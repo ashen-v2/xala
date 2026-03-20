@@ -93,24 +93,24 @@ function onCancel() {
 
 <style scoped>
 .panel {
-  border-radius: 18px;
+  border-radius: 1.25rem;
   border: 1px solid #ffd2b5;
   background: #fffaf6;
-  box-shadow: 0 10px 28px rgba(124, 62, 28, 0.1);
-  padding: 0.95rem;
+  box-shadow: 0 10px 24px rgba(124, 62, 28, 0.08);
+  padding: 0.8rem;
 }
 
 .panel__head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
 }
 
 .panel__head h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.98rem;
   color: #4a2716;
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
 }
@@ -119,22 +119,22 @@ function onCancel() {
   border: 1px solid #f0b58d;
   background: transparent;
   color: #7b341c;
-  border-radius: 10px;
-  font-size: 0.82rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 0.38rem 0.62rem;
+  padding: 0.35rem 0.6rem;
   cursor: pointer;
 }
 
 .form {
   display: grid;
-  gap: 0.7rem;
+  gap: 0.55rem;
 }
 
 label {
   display: grid;
-  gap: 0.35rem;
-  font-size: 0.86rem;
+  gap: 0.28rem;
+  font-size: 0.8rem;
   color: #5d4335;
 }
 
@@ -143,21 +143,21 @@ textarea {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid #efc8af;
-  border-radius: 10px;
+  border-radius: 0.8rem;
   background: #fff;
   color: #3e2a1f;
-  padding: 0.54rem 0.66rem;
-  font-size: 0.9rem;
+  padding: 0.48rem 0.62rem;
+  font-size: 0.86rem;
 }
 
 .submit {
   border: none;
-  border-radius: 12px;
+  border-radius: 0.9rem;
   background: linear-gradient(120deg, #f97316, #ef4444);
   color: white;
   font-weight: 700;
-  font-size: 0.9rem;
-  padding: 0.62rem 0.82rem;
+  font-size: 0.86rem;
+  padding: 0.55rem 0.75rem;
   cursor: pointer;
 }
 

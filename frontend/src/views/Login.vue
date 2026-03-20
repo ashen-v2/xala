@@ -31,7 +31,7 @@ const { mutate: loginUser, isPending, isError, error } = useMutation({
   onSuccess: (data) => {
     authStore.setToken(data.access_token)
     alert('Logged in successfully!')
-    router.push('/dashboard')
+    router.push('/menu-management')
   },
   onError: (err) => {
     console.error("Login Error:", err.response?.data?.detail)

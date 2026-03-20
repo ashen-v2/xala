@@ -9,10 +9,14 @@ const props = defineProps({
   deletingId: {
     type: Number,
     default: null
+  },
+  expanded: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['edit', 'delete'])
+const emit = defineEmits(['edit', 'delete', 'toggle-description'])
 
 const fallbackImage = computed(
   () => `https://picsum.photos/seed/food-${props.item.id ?? props.item.name}/720/420`
@@ -35,6 +39,10 @@ function onImageError() {
   }
 }
 
+function onToggleDescription() {
+  emit('toggle-description', props.item.id)
+}
+
 function onEdit() {
   emit('edit', props.item)
 }
@@ -55,12 +63,18 @@ function onDelete() {
     />
 
     <div class="menu-card__content">
-      <div class="menu-card__head">
-        <h3>{{ item.name }}</h3>
-        <p class="menu-card__price">${{ Number(item.price).toFixed(2) }}</p>
+      <div class="flex items-start justify-between gap-2">
+        <div class="min-w-0">
+          <h3 class="menu-card__title truncate">{{ item.name }}</h3>
+          <p class="menu-card__price">${{ Number(item.price).toFixed(2) }}</p>
+        </div>
+
+        <button type="button" class="menu-card__toggle" @click="onToggleDescription">
+          {{ expanded ? 'Hide details' : 'Details' }}
+        </button>
       </div>
 
-      <p class="menu-card__desc">
+      <p v-if="expanded" class="menu-card__desc">
         {{ item.description || 'No description yet.' }}
       </p>
 
@@ -82,65 +96,70 @@ function onDelete() {
 <style scoped>
 .menu-card {
   overflow: hidden;
-  border-radius: 18px;
+  border-radius: 1.25rem;
   border: 1px solid #f1c9a8;
-  background: #fff9f4;
-  box-shadow: 0 14px 32px rgba(128, 58, 22, 0.12);
+  background: linear-gradient(180deg, #fff9f4 0%, #fffdf9 100%);
+  box-shadow: 0 12px 26px rgba(128, 58, 22, 0.10);
 }
 
 .menu-card__image {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 8;
   object-fit: cover;
   display: block;
 }
 
 .menu-card__content {
-  padding: 0.95rem;
+  padding: 0.8rem;
   display: grid;
-  gap: 0.75rem;
+  gap: 0.55rem;
 }
 
-.menu-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.menu-card__head h3 {
+.menu-card__title {
   margin: 0;
-  font-size: 1.06rem;
+  font-size: 1rem;
   color: #3f2417;
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
 }
 
 .menu-card__price {
-  margin: 0;
-  font-size: 0.95rem;
+  margin: 0.2rem 0 0;
+  font-size: 0.92rem;
   font-weight: 700;
   color: #8f2e11;
 }
 
 .menu-card__desc {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   color: #6a4b36;
   line-height: 1.35;
 }
 
 .menu-card__actions {
   display: flex;
-  gap: 0.55rem;
+  gap: 0.45rem;
 }
 
 .btn {
   border: 0;
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
+  border-radius: 0.75rem;
+  padding: 0.45rem 0.7rem;
   font-weight: 700;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   cursor: pointer;
+}
+
+.menu-card__toggle {
+  border: 1px solid #f3caa7;
+  border-radius: 999px;
+  background: #fff3e8;
+  color: #8a4f21;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
+  white-space: nowrap;
 }
 
 .btn:disabled {
