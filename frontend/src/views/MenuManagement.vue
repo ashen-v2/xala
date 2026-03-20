@@ -111,6 +111,13 @@ function logout() {
         <div class="flex flex-wrap gap-2">
           <button
             type="button"
+            class="rounded-xl bg-[#fff2e2] px-3.5 py-2 text-sm font-bold text-[#7b341c] shadow-sm transition hover:bg-[#ffe4cf]"
+            @click="router.push('/track-sales')"
+          >
+            Track Sales
+          </button>
+          <button
+            type="button"
             class="rounded-xl bg-gradient-to-r from-[#fb923c] to-[#ef4444] px-3.5 py-2 text-sm font-bold text-white shadow-sm transition hover:brightness-105"
             @click="toggleCreatePanel"
           >
