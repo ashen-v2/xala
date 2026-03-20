@@ -112,6 +112,13 @@ function logout() {
           <button
             type="button"
             class="rounded-xl bg-[#fff2e2] px-3.5 py-2 text-sm font-bold text-[#7b341c] shadow-sm transition hover:bg-[#ffe4cf]"
+            @click="router.push('/analytics')"
+          >
+            Analytics
+          </button>
+          <button
+            type="button"
+            class="rounded-xl bg-[#fff2e2] px-3.5 py-2 text-sm font-bold text-[#7b341c] shadow-sm transition hover:bg-[#ffe4cf]"
             @click="router.push('/track-sales')"
           >
             Track Sales

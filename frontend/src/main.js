@@ -4,10 +4,12 @@ import App from './App.vue';
 import { createPinia } from 'pinia'
 import router from './router';
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query';
+import VueApexCharts from "vue3-apexcharts";
 
 const queryClient = new QueryClient()
 const app = createApp(App)
 app.use(createPinia())
 app.use(VueQueryPlugin, { queryClient })
 app.use(router)
+app.use(VueApexCharts)
 app.mount('#app')

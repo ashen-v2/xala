@@ -138,6 +138,7 @@ function logout() {
         </div>
 
         <div class="sales-actions">
+          <button type="button" class="btn-soft" @click="router.push('/analytics')">Analytics</button>
           <button type="button" class="btn-soft" @click="goToMenuManagement">Menu Management</button>
           <button type="button" class="btn-soft" @click="logout">Log out</button>
         </div>
