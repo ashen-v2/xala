@@ -8,6 +8,11 @@ class FoodAnalytics:
         self.user_id = user_id
 
     def get_top_selling_items(self, limit: int = 5):
+        """Get the top selling items for the current user.
+        args:
+            limit (int): The maximum number of top items to return. Defaults to 5.
+        returns:
+            list of tuples containing item name and total quantity sold."""
         top_items = self.session.exec(
             select(MenuItem.name, func.sum(OrderItem.quantity).label("total_quantity"))
             .join(OrderItem, MenuItem.id == OrderItem.product_id)
@@ -20,6 +25,11 @@ class FoodAnalytics:
         return top_items
     
     def get_monthly_sales(self, year: int = date.today().year):
+        """Get monthly sales data for the current user.
+        args:
+            year (int): The year for which to retrieve sales data. Defaults to the current year
+        returns:
+            list of tuples containing month, item name, and total quantity sold."""
         month_label = func.date_trunc("month", Order.created_at).label("month")
         top_items = self.session.exec(
         select(month_label,MenuItem.name, func.sum(OrderItem.quantity).label("total_quantity"))

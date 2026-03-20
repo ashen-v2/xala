@@ -8,6 +8,11 @@ class Analytics:
         self.user_id = user_id
 
     def get_monthly_sales(self, year: int = date.today().year):
+        """Get total sales for each month of a given year for the current user.
+        args:
+            year (int): The year for which to retrieve sales data. Defaults to the current year
+        returns:
+            list of tuples containing month and total sales for that month"""
         month_label = func.date_trunc("month", Order.created_at).label("month")
         monthly_sales = self.session.exec(
             select( month_label, func.sum(Order.total_price).label("total_sales"))
@@ -18,6 +23,12 @@ class Analytics:
         return monthly_sales
     
     def get_weekly_sales(self, year: int = date.today().year, month: int = date.today().month):
+        """Get total sales for each week of a given month and year for the current user.
+        args:
+            year (int): The year for which to retrieve sales data. Defaults to the current year
+            month (int): The month for which to retrieve sales data. Defaults to the current month
+        returns:
+            list of tuples containing week and total sales for that week"""
         week_label = func.date_trunc("week", Order.created_at).label("week")
         weekly_sales = self.session.exec(
             select(week_label, func.sum(Order.total_price).label("total_sales"))
@@ -29,6 +40,12 @@ class Analytics:
         return weekly_sales
     
     def get_daily_sales(self, year: int = date.today().year, week: int = date.today().isocalendar()[1]):
+        """Get total sales for each day of a given week and year for the current user.
+        args:
+            year (int): The year for which to retrieve sales data. Defaults to the current year
+            week (int): The week for which to retrieve sales data. Defaults to the current week
+        returns:
+            list of tuples containing day and total sales for that day"""
         day_label = func.date_trunc("day", Order.created_at).label("day")
         daily_sales = self.session.exec(
             select(day_label, func.sum(Order.total_price).label("total_sales"))

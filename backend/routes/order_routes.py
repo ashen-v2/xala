@@ -13,7 +13,12 @@ router = APIRouter(prefix="/orders", tags=["orders"])
 
 @router.post("/", response_model=OrderRead, status_code=201)
 def create_order(session: Session = Depends(get_session), current_user : TokenData = Depends(get_current_user)):
-    """Create a new order from the user's cart."""
+    """Create a new order from the user's cart.
+    args:
+        session (Session, optional): The database session. Defaults to Depends(get_session).
+        current_user (TokenData, optional): The current user. Defaults to Depends(get_current_user).
+    returns:
+        OrderRead: The created order."""
     # Get the user's cart
     cart = session.exec(select(Cart).where(Cart.user_id == current_user.user_id)).first()
     if not cart:
@@ -49,7 +54,14 @@ def create_order(session: Session = Depends(get_session), current_user : TokenDa
 
 @router.get("/", response_model=list[OrderRead], status_code=200)
 def get_orders(session: Session = Depends(get_session), current_user : TokenData = Depends(get_current_user), limit: int = 50, skip: int = 0):
-    """Get a list of the user's orders."""
+    """Get a list of the user's orders.
+    args:
+        session (Session, optional): The database session. Defaults to Depends(get_session).
+        current_user (TokenData, optional): The current user. Defaults to Depends(get_current_user).
+        limit (int, optional): The maximum number of orders to return. Defaults to 50.
+        skip (int, optional): The number of orders to skip. Defaults to 0.
+    returns:
+        list[OrderRead]: A list of the user's orders."""
     orders = session.exec(select(Order).where(Order.user_id == current_user.user_id).offset(skip).limit(limit)).all()
     if orders and current_user.user_id != orders[0].user_id:
         return AuthorizationError(detail="Not authorized to view this orders")
@@ -57,7 +69,13 @@ def get_orders(session: Session = Depends(get_session), current_user : TokenData
 
 @router.get("/{order_id}", response_model=OrderRead, status_code=200)
 def get_order(order_id: int, session: Session = Depends(get_session), current_user : TokenData = Depends(get_current_user)):
-    """Get details of a specific order."""
+    """Get details of a specific order.
+    args:
+        order_id (int): The ID of the order to retrieve.
+        session (Session, optional): The database session. Defaults to Depends(get_session).
+        current_user (TokenData, optional): The current user. Defaults to Depends(get_current_user)
+    returns:
+        OrderRead: The details of the specified order."""
     order = session.exec(select(Order).where(Order.id == order_id, Order.user_id == current_user.user_id)).first()
     if not order:
         raise OrderNotFoundException()
@@ -67,7 +85,13 @@ def get_order(order_id: int, session: Session = Depends(get_session), current_us
 
 @router.get("/{order_id}/items", response_model=list[OrderItemRead], status_code=200)
 def get_order_items(order_id: int, session: Session = Depends(get_session), current_user : TokenData = Depends(get_current_user)):
-    """Get the items in a specific order."""
+    """Get the items in a specific order.
+    args:
+        order_id (int): The ID of the order to retrieve items for.
+        session (Session, optional): The database session. Defaults to Depends(get_session).
+        current_user (TokenData, optional): The current user. Defaults to Depends(get_current_user).
+    returns:
+        list[OrderItemRead]: A list of items in the specified order."""
     order = session.exec(select(Order).where(Order.id == order_id, Order.user_id == current_user.user_id)).first()
     if not order:
         raise OrderNotFoundException()
@@ -89,7 +113,14 @@ def get_order_items(order_id: int, session: Session = Depends(get_session), curr
 
 @router.delete("/{order_id}", status_code=204)
 def delete_order(order_id: int, session: Session = Depends(get_session), current_user : TokenData = Depends(get_current_user)):
-    """Delete a specific order."""
+    """Delete a specific order.
+    args:
+        order_id (int): The ID of the order to delete.
+        session (Session, optional): The database session. Defaults to Depends(get_session).
+        current_user (TokenData, optional): The current user. Defaults to Depends(get_current_user).
+    raises:
+        OrderNotFoundException: If the order is not found.
+        AuthorizationError: If the user is not authorized to delete the order."""
     order = session.exec(select(Order).where(Order.id == order_id, Order.user_id == current_user.user_id)).first()
     if not order:
         raise OrderNotFoundException()

@@ -11,8 +11,9 @@ const {
   scope,
   year,
   month,
-  week,
+  selectedWeeks,
   weekOptions,
+  canSelectMoreWeeks,
   orders,
   orderDetails,
   orderItems,
@@ -20,6 +21,9 @@ const {
   revenueChart,
   topItemsChart,
   monthlyQuantityChart,
+  hasRevenueData,
+  hasTopItemsData,
+  hasMonthlyItemVolume,
   totalRevenue,
   totalOrders,
   isLoadingAnalytics,
@@ -28,13 +32,15 @@ const {
   analyticsError,
   ordersError,
   orderDetailsError,
+  toggleWeek,
   openOrder,
   closeOrder
 } = useAnalytics()
 
 const yearOptions = computed(() => {
-  const currentYear = new Date().getFullYear()
-  return [currentYear - 1, currentYear, currentYear + 1]
+  const start = 2024
+  const end = 2030
+  return Array.from({ length: end - start + 1 }, (_, index) => start + index)
 })
 
 const monthOptions = [
@@ -52,53 +58,138 @@ const monthOptions = [
   { value: 12, label: 'Dec' }
 ]
 
-const revenueMax = computed(() => {
-  const maxValue = Math.max(...revenueChart.value.values, 1)
-  return maxValue
+const chartCardState = computed(() => {
+  if (isLoadingAnalytics.value) {
+    return 'Loading data...'
+  }
+  if (!hasRevenueData.value) {
+    return 'No data for selected period. Showing empty baseline.'
+  }
+  return ''
 })
 
-const revenuePoints = computed(() => {
-  const values = revenueChart.value.values
-  if (!values.length) return ''
-
-  const width = 100
-  const height = 100
-  const stepX = values.length > 1 ? width / (values.length - 1) : width
-
-  return values
-    .map((value, index) => {
-      const x = index * stepX
-      const y = height - (value / revenueMax.value) * height
-      return `${x},${Math.max(0, Math.min(100, y))}`
-    })
-    .join(' ')
-})
-
-const topItemsBars = computed(() => {
-  const maxValue = Math.max(...topItemsChart.value.values, 1)
-
-  return topItemsChart.value.labels.map((label, index) => {
-    const rawValue = Number(topItemsChart.value.values[index] ?? 0)
-    return {
-      label,
-      value: rawValue,
-      width: `${(rawValue / maxValue) * 100}%`
+const revenueOptions = computed(() => ({
+  chart: {
+    id: 'sales-trend',
+    toolbar: { show: false },
+    zoom: { enabled: false },
+    foreColor: '#6a4b36'
+  },
+  stroke: {
+    curve: 'smooth',
+    width: 3
+  },
+  fill: {
+    type: 'gradient',
+    gradient: {
+      shadeIntensity: 0.4,
+      opacityFrom: 0.4,
+      opacityTo: 0.08,
+      stops: [0, 90, 100]
     }
-  })
-})
-
-const monthlyQuantityBars = computed(() => {
-  const maxValue = Math.max(...monthlyQuantityChart.value.values, 1)
-
-  return monthlyQuantityChart.value.labels.map((label, index) => {
-    const rawValue = Number(monthlyQuantityChart.value.values[index] ?? 0)
-    return {
-      label,
-      value: rawValue,
-      height: `${(rawValue / maxValue) * 100}%`
+  },
+  colors: ['#ef4444', '#fb923c', '#f59e0b', '#f97316'],
+  dataLabels: { enabled: false },
+  grid: {
+    borderColor: '#f4c7a7'
+  },
+  xaxis: {
+    categories: revenueChart.value.categories,
+    labels: {
+      style: {
+        fontSize: '11px'
+      }
     }
-  })
-})
+  },
+  yaxis: {
+    labels: {
+      formatter: (value) => `$${Number(value).toFixed(0)}`
+    }
+  },
+  legend: {
+    show: scope.value === 'daily',
+    position: 'top',
+    horizontalAlign: 'left'
+  },
+  tooltip: {
+    y: {
+      formatter: (value) => `$${Number(value).toFixed(2)}`
+    }
+  }
+}))
+
+const topItemsOptions = computed(() => ({
+  chart: {
+    type: 'bar',
+    toolbar: { show: false },
+    foreColor: '#6a4b36'
+  },
+  plotOptions: {
+    bar: {
+      horizontal: true,
+      borderRadius: 6,
+      distributed: true,
+      barHeight: '55%'
+    }
+  },
+  colors: ['#fb923c', '#f97316', '#ef4444', '#fb7185', '#f59e0b'],
+  dataLabels: { enabled: false },
+  xaxis: {
+    categories: topItemsChart.value.labels,
+    labels: {
+      formatter: (value) => Number(value).toFixed(0)
+    }
+  },
+  grid: {
+    borderColor: '#f4c7a7'
+  }
+}))
+
+const topItemsSeries = computed(() => [
+  {
+    name: 'Qty',
+    data: topItemsChart.value.values
+  }
+])
+
+const monthlyItemOptions = computed(() => ({
+  chart: {
+    type: 'bar',
+    toolbar: { show: false },
+    foreColor: '#6a4b36'
+  },
+  colors: ['#9a3b18'],
+  dataLabels: { enabled: false },
+  plotOptions: {
+    bar: {
+      borderRadius: 5,
+      columnWidth: '60%'
+    }
+  },
+  xaxis: {
+    categories: monthlyQuantityChart.value.labels,
+    labels: {
+      style: {
+        fontSize: '11px'
+      }
+    }
+  },
+  yaxis: {
+    labels: {
+      formatter: (value) => Number(value).toFixed(0)
+    }
+  },
+  grid: {
+    borderColor: '#f4c7a7'
+  }
+}))
+
+const monthlyItemSeries = computed(() => [
+  {
+    name: 'Items Sold',
+    data: monthlyQuantityChart.value.values
+  }
+])
 
 function goToTrackSales() {
   router.push('/track-sales')
@@ -121,7 +212,7 @@ function logout() {
         <div>
           <p class="analytics-kicker">Performance Dashboard</p>
           <h1 class="analytics-title">Analytics</h1>
-          <p class="analytics-subtitle">Monitor trends, top items, and order history in one compact mobile view.</p>
+          <p class="analytics-subtitle">Empty-first charts, then data overlays for sparse months and weeks.</p>
         </div>
 
         <div class="header-actions">
@@ -154,16 +245,10 @@ function logout() {
           <h2>Sales Trend</h2>
           <p class="chart-subtitle">{{ scope.charAt(0).toUpperCase() + scope.slice(1) }} view</p>
         </div>
-        <p v-if="isLoadingAnalytics" class="status status--info">Loading chart...</p>
-        <div v-else-if="revenueChart.values.length" class="line-chart-wrap">
-          <svg class="line-chart" viewBox="0 0 100 100" preserveAspectRatio="none" role="img" aria-label="Revenue trend chart">
-            <polyline :points="revenuePoints" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          </svg>
-          <div class="line-chart-labels">
-            <span v-for="label in revenueChart.labels" :key="label">{{ label }}</span>
-          </div>
+        <div class="chart-wrap">
+          <apexchart type="area" height="270" :options="revenueOptions" :series="revenueChart.series" />
+          <p v-if="chartCardState" class="chart-overlay-msg">{{ chartCardState }}</p>
         </div>
-        <p v-else class="status status--info">No revenue data for selected filters.</p>
       </section>
 
       <section class="chart-card">
@@ -171,39 +256,21 @@ function logout() {
           <h2>Top Selling Items</h2>
           <p class="chart-subtitle">Quantity sold</p>
         </div>
-        <div v-if="topItemsBars.length" class="bars-list">
-          <div v-for="bar in topItemsBars" :key="bar.label" class="bars-list__row">
-            <div class="bars-list__meta">
-              <span class="bars-list__label">{{ bar.label }}</span>
-              <span class="bars-list__value">{{ bar.value }}</span>
-            </div>
-            <div class="bars-list__track">
-              <div class="bars-list__fill" :style="{ width: bar.width }"></div>
-            </div>
-          </div>
+        <div class="chart-wrap">
+          <apexchart type="bar" height="260" :options="topItemsOptions" :series="topItemsSeries" />
+          <p v-if="!hasTopItemsData" class="chart-overlay-msg">No item quantity data yet.</p>
         </div>
-        <p v-else class="status status--info">No top item data yet.</p>
       </section>
 
       <section class="chart-card">
         <div class="chart-head">
           <h2>Monthly Item Volume</h2>
-          <p class="chart-subtitle">Total item quantity per month</p>
+          <p class="chart-subtitle">12-month baseline always visible</p>
         </div>
-        <div v-if="monthlyQuantityBars.length" class="columns-chart">
-          <div
-            v-for="bar in monthlyQuantityBars"
-            :key="bar.label"
-            class="columns-chart__item"
-          >
-            <div class="columns-chart__column-wrap">
-              <div class="columns-chart__column" :style="{ height: bar.height }"></div>
-            </div>
-            <p class="columns-chart__value">{{ bar.value }}</p>
-            <p class="columns-chart__label">{{ bar.label }}</p>
-          </div>
+        <div class="chart-wrap">
+          <apexchart type="bar" height="260" :options="monthlyItemOptions" :series="monthlyItemSeries" />
+          <p v-if="!hasMonthlyItemVolume" class="chart-overlay-msg">No monthly volume data yet.</p>
         </div>
-        <p v-else class="status status--info">No monthly item volume data yet.</p>
       </section>
 
       <section class="orders-card">
@@ -266,22 +333,25 @@ function logout() {
               <option v-for="option in monthOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
             </select>
           </label>
+        </div>
 
-          <label v-if="scope === 'daily'">
-            Week
-            <select v-model.number="week">
-              <option v-for="option in weekOptions" :key="option" :value="option">Week {{ option }}</option>
-            </select>
-          </label>
+        <div v-if="scope === 'daily'" class="week-chip-row">
+          <p class="week-chip-row__label">Select up to 4 weeks:</p>
+          <button
+            v-for="weekValue in weekOptions"
+            :key="weekValue"
+            type="button"
+            :class="['week-chip', { 'week-chip--active': selectedWeeks.includes(weekValue) }]"
+            :disabled="!selectedWeeks.includes(weekValue) && !canSelectMoreWeeks"
+            @click="toggleWeek(weekValue)"
+          >
+            W{{ weekValue }}
+          </button>
         </div>
       </div>
     </div>
 
-    <div
-      v-if="selectedOrderId"
-      class="order-drawer-backdrop"
-      @click.self="closeOrder"
-    >
+    <div v-if="selectedOrderId" class="order-drawer-backdrop" @click.self="closeOrder">
       <aside class="order-drawer">
         <header class="order-drawer__head">
           <h3>Order #{{ selectedOrderId }}</h3>
@@ -320,7 +390,7 @@ function logout() {
 .analytics-screen {
   min-height: 100svh;
   padding: 0.65rem;
-  padding-bottom: 8rem;
+  padding-bottom: 10rem;
   background:
     radial-gradient(circle at top left, rgba(255, 214, 176, 0.75), transparent 34%),
     radial-gradient(circle at top right, rgba(255, 237, 213, 0.95), transparent 30%),
@@ -449,113 +519,23 @@ function logout() {
   color: #7c5b45;
 }
 
-.line-chart-wrap {
-  display: grid;
-  gap: 0.45rem;
+.chart-wrap {
+  position: relative;
   margin-top: 0.45rem;
 }
 
-.line-chart {
-  width: 100%;
-  height: 220px;
+.chart-overlay-msg {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.4rem;
+  margin: 0;
+  border-radius: 0.55rem;
+  background: rgba(255, 250, 244, 0.92);
   border: 1px solid #f1c9a8;
-  border-radius: 0.75rem;
-  background:
-    linear-gradient(to top, rgba(251, 146, 60, 0.15), rgba(251, 146, 60, 0.03));
-}
-
-.line-chart-labels {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.35rem;
-  font-size: 0.66rem;
   color: #7c5b45;
-}
-
-.bars-list {
-  display: grid;
-  gap: 0.45rem;
-  margin-top: 0.55rem;
-}
-
-.bars-list__row {
-  display: grid;
-  gap: 0.24rem;
-}
-
-.bars-list__meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.3rem;
-  font-size: 0.72rem;
-  color: #6a4b36;
-}
-
-.bars-list__label {
-  font-weight: 700;
-  color: #492819;
-}
-
-.bars-list__value {
-  font-weight: 700;
-  color: #8f2e11;
-}
-
-.bars-list__track {
-  width: 100%;
-  height: 0.58rem;
-  border-radius: 999px;
-  background: #ffe8d2;
-  overflow: hidden;
-}
-
-.bars-list__fill {
-  height: 100%;
-  border-radius: 999px;
-  background: linear-gradient(90deg, #fb923c, #ef4444);
-}
-
-.columns-chart {
-  margin-top: 0.55rem;
-  min-height: 220px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(34px, 1fr));
-  gap: 0.38rem;
-  align-items: end;
-}
-
-.columns-chart__item {
-  display: grid;
-  justify-items: center;
-  gap: 0.16rem;
-}
-
-.columns-chart__column-wrap {
-  width: 100%;
-  min-height: 150px;
-  border-radius: 0.4rem;
-  background: #ffe8d2;
-  display: flex;
-  align-items: flex-end;
-}
-
-.columns-chart__column {
-  width: 100%;
-  border-radius: 0.4rem;
-  background: linear-gradient(180deg, #fb923c, #9a3b18);
-}
-
-.columns-chart__value {
-  margin: 0;
-  font-size: 0.62rem;
-  color: #8f2e11;
-  font-weight: 700;
-}
-
-.columns-chart__label {
-  margin: 0;
-  font-size: 0.6rem;
-  color: #7c5b45;
+  font-size: 0.68rem;
+  padding: 0.26rem 0.4rem;
 }
 
 .orders-list,
@@ -656,6 +636,39 @@ function logout() {
   color: #492819;
   padding: 0.32rem 0.42rem;
   font-size: 0.76rem;
+}
+
+.week-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 0.34rem;
+  flex-wrap: wrap;
+}
+
+.week-chip-row__label {
+  margin: 0;
+  color: #7c5b45;
+  font-size: 0.68rem;
+}
+
+.week-chip {
+  border: 1px solid #f1c9a8;
+  background: #fff;
+  color: #7b341c;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.28rem 0.55rem;
+}
+
+.week-chip--active {
+  border-color: #ef4444;
+  background: #ffe4cf;
+}
+
+.week-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .order-drawer-backdrop {
