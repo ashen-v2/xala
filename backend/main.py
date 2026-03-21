@@ -28,6 +28,8 @@ v1_router.include_router(cart_router)
 v1_router.include_router(order_router)
 # adding analytics routes to the v1 router
 v1_router.include_router(analytics_router)
+# adding ai routes to the v1 router
+v1_router.include_router(agent_router)
 
 # adding v1 router to the main app
 app.include_router(v1_router)

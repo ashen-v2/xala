@@ -5,6 +5,8 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+    gemini_api_key: str
+    
     model_config = SettingsConfigDict(env_file=".env")
 
 settings = Settings()
