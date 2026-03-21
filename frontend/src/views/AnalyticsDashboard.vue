@@ -25,13 +25,35 @@ const {
   isLoadingAnalytics,
   isLoadingOrders,
   isLoadingOrderDetails,
+  isAiInsightsPanelOpen,
+  aiPromptInput,
+  aiPresetPrompts,
+  latestAiInsight,
   analyticsError,
   ordersError,
   orderDetailsError,
+  aiInsightsError,
+  isLoadingAiInsights,
   toggleWeek,
   openOrder,
-  closeOrder
+  closeOrder,
+  openAiInsightsPanel,
+  closeAiInsightsPanel,
+  submitAiInsight
 } = useAnalytics()
+
+async function onAiPromptSubmit() {
+  try {
+    await submitAiInsight(aiPromptInput.value)
+  } catch {
+    // Error state is surfaced by the composable via aiInsightsError.
+  }
+}
+
+async function onPresetPrompt(promptText) {
+  aiPromptInput.value = promptText
+  await onAiPromptSubmit()
+}
 
 const yearOptions = computed(() => {
   const start = 2024
@@ -327,6 +349,10 @@ const monthlyItemSeries = computed(() => [
             W{{ weekValue }}
           </button>
         </div>
+
+        <button type="button" class="ai-insights-trigger" @click="openAiInsightsPanel">
+          Get AI Insights
+        </button>
       </div>
     </div>
 
@@ -360,6 +386,56 @@ const monthlyItemSeries = computed(() => [
           </ul>
           <p v-else class="status status--info">No line items found.</p>
         </template>
+      </aside>
+    </div>
+
+    <div v-if="isAiInsightsPanelOpen" class="ai-panel-backdrop" @click.self="closeAiInsightsPanel">
+      <aside class="ai-panel">
+        <header class="ai-panel__head">
+          <div>
+            <h3>AI Sales Insights</h3>
+            <p>Pick a quick prompt or ask your own question.</p>
+          </div>
+          <button type="button" class="btn-soft" @click="closeAiInsightsPanel">Close</button>
+        </header>
+
+        <div class="ai-prompt-chip-row">
+          <button
+            v-for="preset in aiPresetPrompts"
+            :key="preset"
+            type="button"
+            class="ai-prompt-chip"
+            :disabled="isLoadingAiInsights"
+            @click="onPresetPrompt(preset)"
+          >
+            {{ preset }}
+          </button>
+        </div>
+
+        <label class="ai-panel__label" for="ai-prompt-input">Ask for insight</label>
+        <textarea
+          id="ai-prompt-input"
+          v-model="aiPromptInput"
+          class="ai-panel__input"
+          rows="4"
+          maxlength="700"
+          placeholder="Example: Compare this month's performance with last month and suggest 2 improvements."
+        />
+
+        <div class="ai-panel__actions">
+          <button type="button" class="btn-primary" :disabled="isLoadingAiInsights" @click="onAiPromptSubmit">
+            {{ isLoadingAiInsights ? 'Analyzing...' : 'Send to AI' }}
+          </button>
+        </div>
+
+        <p v-if="aiInsightsError" class="status status--error">
+          {{ aiInsightsError?.response?.data?.detail || 'Failed to get AI insights.' }}
+        </p>
+
+        <article v-if="latestAiInsight" class="ai-response-card">
+          <p class="ai-response-card__title">Latest insight</p>
+          <p class="ai-response-card__text">{{ latestAiInsight }}</p>
+        </article>
       </aside>
     </div>
   </section>
@@ -588,6 +664,16 @@ const monthlyItemSeries = computed(() => [
   cursor: not-allowed;
 }
 
+.ai-insights-trigger {
+  border: 1px solid #ef4444;
+  background: #ffe4cf;
+  color: #7b341c;
+  border-radius: 0.75rem;
+  font-size: 0.76rem;
+  font-weight: 800;
+  padding: 0.45rem 0.7rem;
+}
+
 .order-drawer-backdrop {
   position: fixed;
   inset: 0;
@@ -657,6 +743,139 @@ const monthlyItemSeries = computed(() => [
   color: #7c5b45;
 }
 
+.btn-soft {
+  border: 1px solid #f1c9a8;
+  border-radius: 0.65rem;
+  background: #fff;
+  color: #7b341c;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.36rem 0.62rem;
+}
+
+.btn-primary {
+  border: 1px solid #ef4444;
+  border-radius: 0.65rem;
+  background: #8f2e11;
+  color: #fff7ed;
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.42rem 0.75rem;
+}
+
+.btn-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ai-panel-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(57, 33, 22, 0.4);
+  z-index: 45;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.ai-panel {
+  width: 100%;
+  max-height: 72svh;
+  border-radius: 1rem 1rem 0 0;
+  border: 1px solid #f1c9a8;
+  background: linear-gradient(180deg, #fff9f4 0%, #fffdf9 100%);
+  padding: 0.8rem;
+  display: grid;
+  gap: 0.65rem;
+  overflow: auto;
+}
+
+.ai-panel__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.55rem;
+  align-items: flex-start;
+}
+
+.ai-panel__head h3 {
+  margin: 0;
+  font-size: 0.96rem;
+  color: #492819;
+}
+
+.ai-panel__head p {
+  margin: 0.2rem 0 0;
+  font-size: 0.7rem;
+  color: #7c5b45;
+}
+
+.ai-prompt-chip-row {
+  display: grid;
+  gap: 0.38rem;
+}
+
+.ai-prompt-chip {
+  border: 1px solid #f1c9a8;
+  border-radius: 0.68rem;
+  background: #fff;
+  color: #7b341c;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 0.45rem 0.55rem;
+}
+
+.ai-prompt-chip:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-panel__label {
+  font-size: 0.7rem;
+  color: #7c5b45;
+  font-weight: 700;
+}
+
+.ai-panel__input {
+  width: 100%;
+  resize: vertical;
+  border: 1px solid #f1c9a8;
+  border-radius: 0.7rem;
+  background: #fff;
+  color: #492819;
+  padding: 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.ai-panel__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ai-response-card {
+  border: 1px solid #f1c9a8;
+  border-radius: 0.8rem;
+  background: #fff;
+  padding: 0.6rem;
+}
+
+.ai-response-card__title {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #7c5b45;
+  font-weight: 700;
+}
+
+.ai-response-card__text {
+  margin: 0.3rem 0 0;
+  font-size: 0.78rem;
+  color: #492819;
+  white-space: pre-wrap;
+  line-height: 1.45;
+}
+
 @media (min-width: 900px) {
   .sticky-filters {
     left: 50%;
@@ -666,6 +885,13 @@ const monthlyItemSeries = computed(() => [
 
   .metrics-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .ai-panel {
+    width: min(640px, calc(100vw - 1.5rem));
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+    max-height: 70svh;
   }
 }
 </style>

@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel
+from sqlmodel import Field, SQLModel
 
 class Prompt(SQLModel):
-    data : str
+    data: str = Field(min_length=1, max_length=700)

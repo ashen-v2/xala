@@ -1,5 +1,5 @@
 import { computed, ref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import api from '../api/axios'
 
 const MONTH_LABELS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -14,6 +14,14 @@ export function useAnalytics() {
   const selectedWeeks = ref([1])
   const ordersLimit = ref(50)
   const selectedOrderId = ref(null)
+  const isAiInsightsPanelOpen = ref(false)
+  const aiPromptInput = ref('')
+  const latestAiInsight = ref('')
+  const aiPresetPrompts = [
+    'Summarize my sales trend for this year and highlight unusual changes.',
+    'What are my top selling items recently, and what should I stock more?',
+    'Give me 3 actions to improve next week revenue based on my sales pattern.'
+  ]
 
   const monthlySalesQuery = useQuery({
     queryKey: computed(() => ['analytics', 'monthly-sales', year.value]),
@@ -106,6 +114,15 @@ export function useAnalytics() {
       return response.data
     },
     enabled: computed(() => Boolean(selectedOrderId.value))
+  })
+
+  const aiInsightsMutation = useMutation({
+    mutationFn: async (promptText) => {
+      const response = await api.post('/v1/ai/analytics', {
+        data: promptText
+      })
+      return response.data
+    }
   })
 
   const monthlySales = computed(() => monthlySalesQuery.data.value ?? [])
@@ -273,6 +290,29 @@ export function useAnalytics() {
     selectedOrderId.value = null
   }
 
+  function openAiInsightsPanel() {
+    isAiInsightsPanelOpen.value = true
+  }
+
+  function closeAiInsightsPanel() {
+    isAiInsightsPanelOpen.value = false
+  }
+
+  async function submitAiInsight(promptText = aiPromptInput.value) {
+    const nextPrompt = String(promptText ?? '').trim()
+    if (!nextPrompt) {
+      return
+    }
+
+    // Single-turn behavior: every new ask replaces previous output and errors.
+    latestAiInsight.value = ''
+    aiInsightsMutation.reset()
+    aiPromptInput.value = nextPrompt
+
+    const result = await aiInsightsMutation.mutateAsync(nextPrompt)
+    latestAiInsight.value = String(result?.insights ?? '').trim()
+  }
+
   return {
     scope,
     year,
@@ -282,6 +322,10 @@ export function useAnalytics() {
     canSelectMoreWeeks,
     ordersLimit,
     selectedOrderId,
+    isAiInsightsPanelOpen,
+    aiPromptInput,
+    aiPresetPrompts,
+    latestAiInsight,
     monthlySales,
     weeklySales,
     dailySalesByWeek,
@@ -320,8 +364,13 @@ export function useAnalytics() {
     ),
     ordersError: ordersQuery.error,
     orderDetailsError: computed(() => orderDetailsQuery.error.value || orderItemsQuery.error.value),
+    aiInsightsError: aiInsightsMutation.error,
+    isLoadingAiInsights: aiInsightsMutation.isPending,
     toggleWeek,
     openOrder,
-    closeOrder
+    closeOrder,
+    openAiInsightsPanel,
+    closeAiInsightsPanel,
+    submitAiInsight
   }
 }
