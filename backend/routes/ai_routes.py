@@ -57,7 +57,9 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
     tools = [get_sales_data, get_top_items]
     config = genai.types.GenerateContentConfig(
         tools=tools,
-        system_instruction=f"You are a helpful assistant that provides insights based on sales data. Use the provided tools to fetch sales data and generate insights accordingly. Today is {day_name}, {today}."
+        system_instruction=f"You are a helpful assistant that provides insights based on sales data." 
+        f"Use the provided tools to fetch sales data and generate insights accordingly. Today is {day_name}, {today}."
+        f"treat currency as LKR and provide insights in the context of a small street food business."
     )
 
     try:
