@@ -166,24 +166,3 @@ async function handleDelete(item) {
     </div>
   </section>
 </template>
-<style scoped>
-.menu-title {
-  margin: 0.1rem 0 0;
-  font-size: 1.35rem;
-  line-height: 1.15;
-  color: #492819;
-}
-.menu-kicker {
-  margin: 0;
-  color: #9a3b18;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.67rem;
-  font-weight: 700;
-}
-.menu-subtitle {
-  margin: 0.2rem 0 0;
-  font-size: 0.8rem;
-  color: #7c5b45;
-}
-</style>

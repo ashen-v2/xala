@@ -134,7 +134,7 @@ async function onCreateOrder() {
       </p>
       <p v-if="actionError" class="status status--error">{{ actionError }}</p>
       <p v-if="createdOrder?.id" class="status status--success">
-        Order #{{ createdOrder.id }} created. Total: ${{ Number(createdOrder.total_price ?? 0).toFixed(2) }}
+        Order #{{ createdOrder.id }} created. Total: Rs.{{ Number(createdOrder.total_price ?? 0).toFixed(2) }}
       </p>
 
       <section class="menu-grid" aria-label="Track sales menu items">
@@ -146,7 +146,7 @@ async function onCreateOrder() {
           @click="onCardTap(item)"
         >
           <p class="sales-card__name">{{ item.name }}</p>
-          <p class="sales-card__price">${{ Number(item.price).toFixed(2) }}</p>
+          <p class="sales-card__price">Rs.{{ Number(item.price).toFixed(2) }}</p>
 
           <div class="qty-control" @click.stop>
             <button type="button" class="qty-btn" @click="decreaseQuantity(item)">-</button>
@@ -161,7 +161,7 @@ async function onCreateOrder() {
       <div class="sticky-order-bar">
         <div>
           <p class="sticky-order-bar__label">Current Order</p>
-          <p class="sticky-order-bar__value">{{ cartCount }} items • ${{ cartTotal.toFixed(2) }}</p>
+          <p class="sticky-order-bar__value">{{ cartCount }} items • Rs.{{ cartTotal.toFixed(2) }}</p>
         </div>
 
         <div class="sticky-order-bar__actions">
@@ -189,7 +189,7 @@ async function onCreateOrder() {
           <li v-for="row in cartRows" :key="row.id" class="cart-row">
             <div>
               <p class="cart-row__name">{{ row.name }}</p>
-              <p class="cart-row__meta">${{ row.unitPrice.toFixed(2) }} each</p>
+              <p class="cart-row__meta">Rs.{{ row.unitPrice.toFixed(2) }} each</p>
             </div>
 
             <div class="cart-row__right">
@@ -198,7 +198,7 @@ async function onCreateOrder() {
                 <span class="qty-value">{{ row.quantity }}</span>
                 <button type="button" class="qty-btn" @click="increaseQuantity({ id: row.product_id })">+</button>
               </div>
-              <p class="cart-row__line-total">${{ row.lineTotal.toFixed(2) }}</p>
+              <p class="cart-row__line-total">Rs.{{ row.lineTotal.toFixed(2) }}</p>
               <button type="button" class="remove-link" @click="removeRow(row.id)">Remove</button>
             </div>
           </li>
@@ -206,7 +206,7 @@ async function onCreateOrder() {
         <p v-else class="status status--info">Your cart is empty.</p>
 
         <footer class="cart-drawer__foot">
-          <p class="cart-total">Total: ${{ cartTotal.toFixed(2) }}</p>
+          <p class="cart-total">Total: Rs.{{ cartTotal.toFixed(2) }}</p>
           <button
             type="button"
             class="btn-primary"
@@ -223,12 +223,6 @@ async function onCreateOrder() {
 
 <style scoped>
 .sales-screen {
-  min-height: 100svh;
-  background:
-    radial-gradient(circle at top left, rgba(255, 214, 176, 0.75), transparent 34%),
-    radial-gradient(circle at top right, rgba(255, 237, 213, 0.95), transparent 30%),
-    linear-gradient(180deg, #fffaf4 0%, #fff 100%);
-  color: #442718;
   padding: 0.65rem;
   padding-bottom: 6.3rem;
 }
@@ -250,15 +244,6 @@ async function onCreateOrder() {
   gap: 0.55rem;
 }
 
-.sales-kicker {
-  margin: 0;
-  color: #9a3b18;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.67rem;
-  font-weight: 700;
-}
-
 .sales-title {
   margin: 0.1rem 0 0;
   font-size: 1.3rem;
@@ -270,61 +255,6 @@ async function onCreateOrder() {
   margin: 0.2rem 0 0;
   font-size: 0.78rem;
   color: #7c5b45;
-}
-
-.btn-soft,
-.btn-outline,
-.btn-primary {
-  border-radius: 0.75rem;
-  font-weight: 700;
-  font-size: 0.76rem;
-  padding: 0.5rem 0.65rem;
-  cursor: pointer;
-}
-
-.btn-soft {
-  border: 1px solid #f1c9a8;
-  background: #fff2e2;
-  color: #7b341c;
-}
-
-.btn-outline {
-  border: 1px solid #f1c9a8;
-  background: #fff;
-  color: #7b341c;
-}
-
-.btn-primary {
-  border: none;
-  background: linear-gradient(120deg, #fb923c, #ef4444);
-  color: #fff;
-}
-
-.btn-primary:disabled {
-  opacity: 0.65;
-  cursor: wait;
-}
-
-.status {
-  margin: 0;
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.65rem;
-  font-size: 0.76rem;
-}
-
-.status--info {
-  background: #fef3c7;
-  color: #713f12;
-}
-
-.status--error {
-  background: #fee2e2;
-  color: #7f1d1d;
-}
-
-.status--success {
-  background: #dcfce7;
-  color: #166534;
 }
 
 .menu-grid {
@@ -369,17 +299,6 @@ async function onCreateOrder() {
   border-radius: 999px;
   background: #fff3e8;
   padding: 0.14rem;
-}
-
-.qty-btn {
-  border: none;
-  border-radius: 999px;
-  background: #ffd8b8;
-  color: #7b341c;
-  font-weight: 800;
-  min-height: 1.35rem;
-  min-width: 1.35rem;
-  font-size: 0.75rem;
 }
 
 .qty-value {

@@ -77,15 +77,9 @@ function register() {
 </template>
 <style scoped>
 .auth-screen {
-    min-height: 100svh;
     padding: 0.8rem;
     display: grid;
     align-items: center;
-    background:
-        radial-gradient(circle at top left, rgba(255, 214, 176, 0.75), transparent 34%),
-        radial-gradient(circle at top right, rgba(255, 237, 213, 0.95), transparent 30%),
-        linear-gradient(180deg, #fffaf4 0%, #fff 100%);
-    color: #442718;
 }
 
 .auth-shell {
@@ -101,15 +95,6 @@ function register() {
     padding: 0.95rem;
 }
 
-.auth-kicker {
-    margin: 0;
-    color: #9a3b18;
-    text-transform: uppercase;
-    letter-spacing: 0.17em;
-    font-size: 0.66rem;
-    font-weight: 700;
-}
-
 .auth-title {
     margin: 0.15rem 0 0;
     color: #492819;
@@ -120,11 +105,6 @@ function register() {
     margin: 0.25rem 0 0.7rem;
     color: #7c5b45;
     font-size: 0.79rem;
-}
-
-.auth-form {
-    display: grid;
-    gap: 0.58rem;
 }
 
 .auth-field {
@@ -144,32 +124,9 @@ function register() {
     font-size: 0.82rem;
 }
 
-.btn-primary {
-    border: none;
-    border-radius: 0.75rem;
-    background: linear-gradient(120deg, #fb923c, #ef4444);
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.82rem;
-    padding: 0.6rem 0.72rem;
-    cursor: pointer;
-}
-
-.btn-primary:disabled {
-    opacity: 0.65;
-    cursor: wait;
-}
-
-.status {
-    margin: 0;
-    border-radius: 0.75rem;
-    padding: 0.5rem 0.65rem;
-    font-size: 0.76rem;
-}
-
-.status--error {
-    background: #fee2e2;
-    color: #7f1d1d;
+.auth-form {
+    display: grid;
+    gap: 0.58rem;
 }
 
 .auth-redirect {

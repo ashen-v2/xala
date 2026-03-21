@@ -115,17 +115,6 @@ function onCancel() {
   font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
 }
 
-.ghost {
-  border: 1px solid #f0b58d;
-  background: transparent;
-  color: #7b341c;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 0.35rem 0.6rem;
-  cursor: pointer;
-}
-
 .form {
   display: grid;
   gap: 0.55rem;
@@ -148,21 +137,5 @@ textarea {
   color: #3e2a1f;
   padding: 0.48rem 0.62rem;
   font-size: 0.86rem;
-}
-
-.submit {
-  border: none;
-  border-radius: 0.9rem;
-  background: linear-gradient(120deg, #f97316, #ef4444);
-  color: white;
-  font-weight: 700;
-  font-size: 0.86rem;
-  padding: 0.55rem 0.75rem;
-  cursor: pointer;
-}
-
-.submit:disabled {
-  opacity: 0.65;
-  cursor: wait;
 }
 </style>

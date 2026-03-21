@@ -211,7 +211,7 @@ const monthlyItemSeries = computed(() => [
       <section class="metrics-grid">
         <article class="metric-card">
           <p class="metric-card__label">Revenue (Current Scope)</p>
-          <p class="metric-card__value">${{ totalRevenue.toFixed(2) }}</p>
+          <p class="metric-card__value">Rs.{{ totalRevenue.toFixed(2) }}</p>
         </article>
         <article class="metric-card">
           <p class="metric-card__label">Recent Orders</p>
@@ -266,7 +266,7 @@ const monthlyItemSeries = computed(() => [
                 <p class="order-row__id">Order #{{ order.id }}</p>
                 <p class="order-row__time">{{ new Date(order.created_at).toLocaleString() }}</p>
               </div>
-              <p class="order-row__amount">${{ Number(order.total_price ?? 0).toFixed(2) }}</p>
+              <p class="order-row__amount">Rs.{{ Number(order.total_price ?? 0).toFixed(2) }}</p>
             </button>
           </li>
         </ul>
@@ -346,7 +346,7 @@ const monthlyItemSeries = computed(() => [
         <template v-else>
           <div v-if="orderDetails" class="order-summary">
             <p><strong>Created:</strong> {{ new Date(orderDetails.created_at).toLocaleString() }}</p>
-            <p><strong>Total:</strong> ${{ Number(orderDetails.total_price ?? 0).toFixed(2) }}</p>
+            <p><strong>Total:</strong> Rs.{{ Number(orderDetails.total_price ?? 0).toFixed(2) }}</p>
           </div>
 
           <ul v-if="orderItems.length" class="order-items-list">
@@ -355,7 +355,7 @@ const monthlyItemSeries = computed(() => [
                 <p class="order-item-row__name">{{ item.product_name }}</p>
                 <p class="order-item-row__meta">Qty: {{ item.quantity }}</p>
               </div>
-              <p class="order-item-row__amount">${{ Number(item.price ?? 0).toFixed(2) }}</p>
+              <p class="order-item-row__amount">Rs.{{ Number(item.price ?? 0).toFixed(2) }}</p>
             </li>
           </ul>
           <p v-else class="status status--info">No line items found.</p>
@@ -367,14 +367,8 @@ const monthlyItemSeries = computed(() => [
 
 <style scoped>
 .analytics-screen {
-  min-height: 100svh;
   padding: 0.65rem;
   padding-bottom: 10rem;
-  background:
-    radial-gradient(circle at top left, rgba(255, 214, 176, 0.75), transparent 34%),
-    radial-gradient(circle at top right, rgba(255, 237, 213, 0.95), transparent 30%),
-    linear-gradient(180deg, #fffaf4 0%, #fff 100%);
-  color: #442718;
 }
 
 .analytics-shell {
@@ -392,56 +386,6 @@ const monthlyItemSeries = computed(() => [
   padding: 0.75rem;
   display: grid;
   gap: 0.6rem;
-}
-
-.analytics-kicker {
-  margin: 0;
-  color: #9a3b18;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.67rem;
-  font-weight: 700;
-}
-
-.analytics-title {
-  margin: 0.1rem 0 0;
-  font-size: 1.35rem;
-  line-height: 1.15;
-  color: #492819;
-}
-
-.analytics-subtitle {
-  margin: 0.2rem 0 0;
-  font-size: 0.8rem;
-  color: #7c5b45;
-}
-
-.btn-soft {
-  border: 1px solid #f1c9a8;
-  background: #fff2e2;
-  color: #7b341c;
-  border-radius: 0.75rem;
-  font-weight: 700;
-  font-size: 0.76rem;
-  padding: 0.5rem 0.65rem;
-  cursor: pointer;
-}
-
-.status {
-  margin: 0;
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.65rem;
-  font-size: 0.76rem;
-}
-
-.status--info {
-  background: #fef3c7;
-  color: #713f12;
-}
-
-.status--error {
-  background: #fee2e2;
-  color: #7f1d1d;
 }
 
 .metrics-grid {

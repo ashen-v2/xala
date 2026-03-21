@@ -66,7 +66,7 @@ function onDelete() {
       <div class="flex items-start justify-between gap-2">
         <div class="min-w-0">
           <h3 class="menu-card__title truncate">{{ item.name }}</h3>
-          <p class="menu-card__price">${{ Number(item.price).toFixed(2) }}</p>
+          <p class="menu-card__price">Rs.{{ Number(item.price).toFixed(2) }}</p>
         </div>
 
         <button type="button" class="menu-card__toggle" @click="onToggleDescription">
@@ -139,41 +139,5 @@ function onDelete() {
 .menu-card__actions {
   display: flex;
   gap: 0.45rem;
-}
-
-.btn {
-  border: 0;
-  border-radius: 0.75rem;
-  padding: 0.45rem 0.7rem;
-  font-weight: 700;
-  font-size: 0.8rem;
-  cursor: pointer;
-}
-
-.menu-card__toggle {
-  border: 1px solid #f3caa7;
-  border-radius: 999px;
-  background: #fff3e8;
-  color: #8a4f21;
-  font-size: 0.72rem;
-  font-weight: 700;
-  padding: 0.3rem 0.6rem;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.btn:disabled {
-  opacity: 0.65;
-  cursor: wait;
-}
-
-.btn--secondary {
-  background: #ffe4cf;
-  color: #7b341c;
-}
-
-.btn--danger {
-  background: #972d2d;
-  color: #fff;
 }
 </style>

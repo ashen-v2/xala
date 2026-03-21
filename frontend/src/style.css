@@ -15,6 +15,14 @@
   --social-bg: rgba(244, 243, 236, 0.5);
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --surface-border: #f1c9a8;
+  --surface-bg: linear-gradient(145deg, #fff7ed, #fffdf7);
+  --surface-shadow: 0 14px 32px rgba(128, 58, 22, 0.1);
+  --surface-shadow-soft: 0 10px 20px rgba(128, 58, 22, 0.08);
+  --surface-shadow-strong: 0 14px 30px rgba(128, 58, 22, 0.18);
+  --accent-gradient: linear-gradient(120deg, #fb923c, #ef4444);
+  --accent-gradient-soft: linear-gradient(180deg, #fff9f4 0%, #fffdf9 100%);
+  --focus-ring: 0 0 0 2px rgba(239, 68, 68, 0.18);
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -57,6 +65,342 @@
 
 body {
   margin: 0;
+}
+
+.analytics-screen,
+.sales-screen,
+.profile-screen,
+.auth-screen {
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at top left, rgba(255, 214, 176, 0.75), transparent 34%),
+    radial-gradient(circle at top right, rgba(255, 237, 213, 0.95), transparent 30%),
+    linear-gradient(180deg, #fffaf4 0%, #fff 100%);
+  color: #442718;
+}
+
+.analytics-kicker,
+.sales-kicker,
+.menu-kicker,
+.profile-kicker,
+.auth-kicker {
+  margin: 0;
+  color: #9a3b18;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.67rem;
+  font-weight: 700;
+}
+
+.analytics-title,
+.menu-title {
+  margin: 0.1rem 0 0;
+  font-size: 1.35rem;
+  line-height: 1.15;
+  color: #492819;
+}
+
+.analytics-subtitle,
+.menu-subtitle {
+  margin: 0.2rem 0 0;
+  font-size: 0.8rem;
+  color: #7c5b45;
+}
+
+.status {
+  margin: 0;
+  border-radius: 0.75rem;
+  padding: 0.5rem 0.65rem;
+  font-size: 0.76rem;
+}
+
+.status--info {
+  background: #fef3c7;
+  color: #713f12;
+}
+
+.status--error {
+  background: #fee2e2;
+  color: #7f1d1d;
+}
+
+.status--success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.btn-primary,
+.auth-nav__button,
+.submit {
+  border: none;
+  border-radius: 0.75rem;
+  background: var(--accent-gradient);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    filter 120ms ease;
+}
+
+.btn-primary:hover,
+.auth-nav__button:hover,
+.submit:hover {
+  filter: brightness(1.04);
+}
+
+.btn-primary:focus-visible,
+.auth-nav__button:focus-visible,
+.submit:focus-visible,
+.btn-soft:focus-visible,
+.btn-outline:focus-visible,
+.btn-logout:focus-visible,
+.btn:focus-visible,
+.ghost:focus-visible,
+.menu-card__toggle:focus-visible,
+.qty-btn:focus-visible,
+.chip:focus-visible,
+.week-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.btn-primary:disabled,
+.auth-nav__button:disabled,
+.submit:disabled,
+.btn:disabled,
+.btn-outline:disabled,
+.btn-soft:disabled,
+.btn-logout:disabled,
+.qty-btn:disabled,
+.chip:disabled,
+.week-chip:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.btn-soft,
+.ghost {
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  background: #fff2e2;
+  color: #7b341c;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-outline,
+.auth-nav__button {
+  border: 1px solid var(--surface-border);
+  border-radius: 0.75rem;
+  background: #fff;
+  color: #7b341c;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-logout {
+  border: 1px solid #ef4444;
+  border-radius: 0.75rem;
+  background: #fee2e2;
+  color: #991b1b;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn,
+.btn--secondary,
+.btn--danger,
+.menu-card__toggle,
+.qty-btn,
+.chip,
+.week-chip {
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition:
+    transform 120ms ease,
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.btn,
+.btn--secondary,
+.btn--danger {
+  border: 0;
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.btn--secondary {
+  background: #ffe4cf;
+  color: #7b341c;
+}
+
+.btn--danger {
+  background: #972d2d;
+  color: #fff;
+}
+
+.menu-card__toggle {
+  border: 1px solid #f3caa7;
+  border-radius: 999px;
+  background: #fff3e8;
+  color: #8a4f21;
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.qty-btn {
+  border: none;
+  border-radius: 999px;
+  background: #ffd8b8;
+  color: #7b341c;
+  font-weight: 800;
+  min-height: 1.35rem;
+  min-width: 1.35rem;
+  font-size: 0.75rem;
+}
+
+.chip,
+.week-chip {
+  border: 1px solid var(--surface-border);
+  background: #fff;
+  color: #7b341c;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+}
+
+.chip,
+.week-chip,
+.btn-soft,
+.btn-outline,
+.btn-logout,
+.ghost,
+.menu-card__toggle,
+.qty-btn,
+.btn-primary,
+.auth-nav__button,
+.submit,
+.btn,
+.btn--secondary,
+.btn--danger {
+  box-shadow: none;
+}
+
+.btn-primary:active,
+.auth-nav__button:active,
+.submit:active,
+.btn-soft:active,
+.btn-outline:active,
+.btn-logout:active,
+.ghost:active,
+.menu-card__toggle:active,
+.qty-btn:active,
+.chip:active,
+.week-chip:active,
+.btn:active,
+.btn--secondary:active,
+.btn--danger:active {
+  transform: translateY(1px);
+}
+
+.auth-nav__button--active {
+  border-color: #ef4444;
+  background: var(--accent-gradient);
+  color: #fff;
+}
+
+.chip--active,
+.week-chip--active {
+  border-color: #ef4444;
+  background: #ffe4cf;
+}
+
+.auth-nav__button {
+  font-size: 0.73rem;
+  padding: 0.46rem 0.62rem;
+}
+
+.btn-primary,
+.submit {
+  color: #fff;
+}
+
+.btn-soft,
+.btn-outline,
+.btn-logout,
+.ghost,
+.auth-nav__button {
+  padding: 0.46rem 0.62rem;
+}
+
+.btn-primary,
+.submit,
+.btn-soft,
+.btn-outline,
+.btn-logout,
+.ghost,
+.auth-nav__button {
+  font-size: 0.76rem;
+}
+
+.btn-soft,
+.btn-outline,
+.btn-logout,
+.auth-nav__button,
+.ghost {
+  line-height: 1.1;
+}
+
+.btn-primary,
+.submit {
+  padding: 0.6rem 0.72rem;
+}
+
+.btn,
+.btn--secondary,
+.btn--danger {
+  padding: 0.45rem 0.7rem;
+}
+
+.qty-btn {
+  padding: 0;
+}
+
+.menu-card__toggle {
+  padding: 0.3rem 0.6rem;
+}
+
+.chip,
+.week-chip {
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+}
+
+.auth-nav__button--active:hover,
+.chip--active:hover,
+.week-chip--active:hover {
+  filter: brightness(1.01);
+}
+
+.auth-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.42rem;
+}
+
+@media (min-width: 768px) {
+  .auth-nav__button {
+    font-size: 0.76rem;
+    padding: 0.5rem 0.7rem;
+  }
 }
 
 h1,

@@ -116,13 +116,7 @@ function logout() {
 
 <style scoped>
 .profile-screen {
-  min-height: 100svh;
   padding: 0.65rem;
-  background:
-    radial-gradient(circle at top left, rgba(255, 214, 176, 0.75), transparent 34%),
-    radial-gradient(circle at top right, rgba(255, 237, 213, 0.95), transparent 30%),
-    linear-gradient(180deg, #fffaf4 0%, #fff 100%);
-  color: #442718;
 }
 
 .profile-shell {
@@ -142,15 +136,6 @@ function logout() {
   padding: 0.75rem;
 }
 
-.profile-kicker {
-  margin: 0;
-  color: #9a3b18;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.67rem;
-  font-weight: 700;
-}
-
 .profile-title {
   margin: 0.1rem 0 0;
   font-size: 1.35rem;
@@ -161,28 +146,6 @@ function logout() {
   margin: 0.2rem 0 0.6rem;
   font-size: 0.79rem;
   color: #7c5b45;
-}
-
-.status {
-  margin: 0;
-  border-radius: 0.75rem;
-  padding: 0.5rem 0.65rem;
-  font-size: 0.76rem;
-}
-
-.status--info {
-  background: #fef3c7;
-  color: #713f12;
-}
-
-.status--error {
-  background: #fee2e2;
-  color: #7f1d1d;
-}
-
-.status--success {
-  background: #dcfce7;
-  color: #166534;
 }
 
 .profile-card {
@@ -216,40 +179,6 @@ function logout() {
   display: flex;
   justify-content: flex-end;
   gap: 0.5rem;
-}
-
-.btn-primary,
-.btn-outline,
-.btn-logout {
-  border-radius: 0.75rem;
-  font-weight: 700;
-  font-size: 0.78rem;
-  padding: 0.5rem 0.78rem;
-  cursor: pointer;
-}
-
-.btn-outline {
-  border: 1px solid #f1c9a8;
-  background: #fff;
-  color: #7b341c;
-}
-
-.btn-primary {
-  border: none;
-  background: linear-gradient(120deg, #fb923c, #ef4444);
-  color: #fff;
-}
-
-.btn-logout {
-  border: 1px solid #ef4444;
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-.btn-primary:disabled,
-.btn-outline:disabled {
-  opacity: 0.6;
-  cursor: wait;
 }
 
 .logout-card h2 {
