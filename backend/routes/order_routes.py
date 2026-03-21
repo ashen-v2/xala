@@ -62,7 +62,7 @@ def get_orders(session: Session = Depends(get_session), current_user : TokenData
         skip (int, optional): The number of orders to skip. Defaults to 0.
     returns:
         list[OrderRead]: A list of the user's orders."""
-    orders = session.exec(select(Order).where(Order.user_id == current_user.user_id).offset(skip).limit(limit)).all()
+    orders = session.exec(select(Order).where(Order.user_id == current_user.user_id).offset(skip).limit(limit).order_by(Order.created_at.desc())).all()
     if orders and current_user.user_id != orders[0].user_id:
         return AuthorizationError(detail="Not authorized to view this orders")
     return orders

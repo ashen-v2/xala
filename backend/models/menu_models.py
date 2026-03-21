@@ -17,7 +17,7 @@ class MenuItemCreate(MenuItemBase):
     pass
 
 class MenuItemRead(MenuItemCreate):
-    menu_table_id: int = Field(nullable=False, foreign_key="user_menus.id")
+    menu_table_id: int = Field(nullable=False, foreign_key="user_menus.id", ondelete="CASCADE")
     id: int = Field(default=None, primary_key=True)
 
 class MenuItem(MenuItemRead, table=True):
