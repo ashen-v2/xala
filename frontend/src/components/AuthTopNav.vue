@@ -6,8 +6,8 @@ const route = useRoute()
 const router = useRouter()
 
 const navItems = [
-  { label: 'Track', path: '/track-sales' },
-  { label: 'Menu Management', path: '/menu-management' },
+  { label: 'Record Sales', path: '/track-sales' },
+  { label: 'Manage Menu', path: '/menu-management' },
   { label: 'Analytics', path: '/analytics' },
   { label: 'Profile', path: '/profile' }
 ]

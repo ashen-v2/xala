@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
+import fallbackPlaceholder from '../../assets/menu_placeholer.jpg'
 
 const props = defineProps({
   item: {
@@ -18,9 +19,7 @@ const props = defineProps({
 
 const emit = defineEmits(['edit', 'delete', 'toggle-description'])
 
-const fallbackImage = computed(
-  () => `https://picsum.photos/seed/food-${props.item.id ?? props.item.name}/720/420`
-)
+const fallbackImage = computed(() => fallbackPlaceholder)
 const imageSrc = ref(props.item.image_url || fallbackImage.value)
 
 watch(
