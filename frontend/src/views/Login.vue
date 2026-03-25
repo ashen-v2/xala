@@ -63,6 +63,10 @@ function handleLogin() {
             <input v-model="password" type="password" placeholder="Enter your password" required />
           </label>
 
+          <p class="auth-inline-link-row">
+            <button type="button" class="auth-link" @click="router.push('/forgot-password')">Forgot password?</button>
+          </p>
+
           <button type="submit" class="btn-primary" :disabled="isPending">
             {{ isPending ? 'Signing in...' : 'Login' }}
           </button>
@@ -139,6 +143,11 @@ function handleLogin() {
   margin: 0.2rem 0 0;
   color: #7c5b45;
   font-size: 0.74rem;
+}
+
+.auth-inline-link-row {
+  margin: -0.1rem 0 0;
+  text-align: right;
 }
 
 .auth-link {

@@ -11,6 +11,7 @@ from dependancies.dependancies import get_current_user
 from models.user_models import User, UserCreate, UserRead, UserUpdate
 from errors.errors_auth import InvalidCredentialsError, UserNotFoundError, UserAlreadyExistsError
 from errors.errors_db import DatabaseError
+from integrations.mailtrap import mailtrap_client
 
 
 router : APIRouter = APIRouter(prefix="/users", tags=["users"])
@@ -107,7 +108,20 @@ def forgot_password(email: EmailStr, session: Session = Depends(get_session)):
         raise UserNotFoundError()
     
     reset_token = create_password_reset_token(data={"user_id": user.id})
-    # Here you would typically send the reset token to the user's email address
+    mailtrap_client.send_email(
+        to_email=user.email,
+        subject="Password Reset Request",
+       html_content = (
+                        f"<p>You requested a password reset. Click the link below to reset your password:</p>"
+                        f"<a href='http://localhost:5173/reset-password?token={reset_token}' "
+                        f"style='background-color: #4CAF50; color: white; padding: 10px 20px; "
+                        f"text-decoration: none; display: inline-block; border-radius: 5px;'>"
+                        f"Reset Password</a>"
+                        f"<p>This link is valid for 10 minutes.</p>"
+                    ),
+        text_content=f"You requested a password reset, This token is valid for 10 minutes."
+    )
+
     return {"password_token": reset_token}
 
 @router.post("/reset-password", status_code=200)
