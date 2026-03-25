@@ -1,14 +1,15 @@
 from fastapi import APIRouter, Depends
+from pydantic import EmailStr
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
 from utils import verify_password, DUMMY_HASH, hash_password
 from db.session import get_session
-from models.token_models import TokenBase, TokenData
-from oauth2.oauth2 import create_access_token, verify_access_token
+from models.token_models import TokenBase, TokenData, passwordReset
+from oauth2.oauth2 import create_access_token, create_password_reset_token, verify_password_reset_token
 from dependancies.dependancies import get_current_user
 from models.user_models import User, UserCreate, UserRead, UserUpdate
-from errors.errors_auth import InvalidCredentialsError, AuthenticationError, UserNotFoundError, UserAlreadyExistsError
+from errors.errors_auth import InvalidCredentialsError, UserNotFoundError, UserAlreadyExistsError
 from errors.errors_db import DatabaseError
 
 
@@ -92,4 +93,31 @@ def update_user_me(user_update: UserUpdate, current_user: TokenData = Depends(ge
     session.refresh(user)
     return user
 
+@router.post("/forgot-password/{email}", status_code=200)
+def forgot_password(email: EmailStr, session: Session = Depends(get_session)):
+    """Initiate the password reset process for a user.
+    Args:
+        email (EmailStr): The email of the user who forgot their password.
+        session (Session, optional): The database session. Defaults to Depends(get_session).
+    Returns:
+        passwordToken
+    """
+    user = session.exec(select(User).where(User.email == email)).first()
+    if not user:
+        raise UserNotFoundError()
+    
+    reset_token = create_password_reset_token(data={"user_id": user.id})
+    # Here you would typically send the reset token to the user's email address
+    return {"password_token": reset_token}
 
+@router.post("/reset-password", status_code=200)
+def reset_password(password_reset: passwordReset, session: Session = Depends(get_session)):
+    user_id = verify_password_reset_token(password_reset.password_token).user_id
+    user = session.exec(select(User).where(User.id == user_id)).first()
+    if not user:
+        raise UserNotFoundError()
+    
+    user.password = hash_password(password_reset.password)
+    session.add(user)
+    session.commit()
+    return {"message": "Password reset successfully."}
