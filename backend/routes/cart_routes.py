@@ -3,7 +3,7 @@ from sqlmodel import Session, select
 from models.token_models import TokenData
 from db.session import get_session
 from models.cart_models import Cart, CartItem, CartItemCreate, CartItemRead, CartItemUpdate
-from models.menu_models import MenuItem
+from models.menu_models import MenuItem, MenuTable
 from dependancies.dependancies import get_current_user
 from errors.errors_cart import CartItemNotFoundException
 from errors.errors_auth import AuthorizationError
@@ -22,8 +22,14 @@ def add_to_cart(cartitem: CartItemCreate, session: Session = Depends(get_session
         session.commit()
         session.refresh(cart)
 
+     # Check if the product exists in the menu
+    menu_item = session.get(MenuItem, cartitem.product_id)
+    if not menu_item or menu_item.menu_table_id != session.exec(select(MenuTable.id).where(MenuTable.user_id == current_user.user_id)).first():
+        raise CartItemNotFoundException(detail="Product not found in your menu")
+
     # Check if the item is already in the cart
     cart_item = session.exec(select(CartItem).where(CartItem.cart_id == cart.id, CartItem.product_id == cartitem.product_id)).first()
+
     if cart_item:
         cart_item.quantity += cartitem.quantity
     else:
