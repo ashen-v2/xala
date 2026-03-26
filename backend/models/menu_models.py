@@ -1,4 +1,4 @@
-from sqlmodel import Relationship, SQLModel, Field
+from sqlmodel import SQLModel, Field
 from datetime import datetime, timezone
 
 class MenuTable(SQLModel, table=True):
@@ -11,7 +11,7 @@ class MenuTable(SQLModel, table=True):
 class MenuItemBase(SQLModel):
     name: str = Field(nullable=False)
     description: str | None = None
-    price: float = Field(nullable=False)
+    price: float = Field(nullable=False, ge=0.0)
 
 class MenuItemCreate(MenuItemBase):
     pass

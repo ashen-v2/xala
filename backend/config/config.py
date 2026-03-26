@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int
     gemini_api_key: str
     mail_api_key: str
+    frontend_url: str 
     
     model_config = SettingsConfigDict(env_file=".env")
 

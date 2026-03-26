@@ -12,6 +12,7 @@ from models.user_models import User, UserCreate, UserRead, UserUpdate
 from errors.errors_auth import InvalidCredentialsError, UserNotFoundError, UserAlreadyExistsError
 from errors.errors_db import DatabaseError
 from integrations.mailtrap import mailtrap_client
+from config.config import settings
 
 
 router : APIRouter = APIRouter(prefix="/users", tags=["users"])
@@ -113,7 +114,7 @@ def forgot_password(email: EmailStr, session: Session = Depends(get_session)):
         subject="Password Reset Request",
        html_content = (
                         f"<p>You requested a password reset. Click the link below to reset your password:</p>"
-                        f"<a href='http://localhost:5173/reset-password?token={reset_token}' "
+                        f"<a href='{settings.frontend_url}/reset-password?token={reset_token}' "
                         f"style='background-color: #4CAF50; color: white; padding: 10px 20px; "
                         f"text-decoration: none; display: inline-block; border-radius: 5px;'>"
                         f"Reset Password</a>"
