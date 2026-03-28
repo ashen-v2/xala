@@ -3,9 +3,9 @@ from PIL import Image
 from google import genai
 from config import settings
 
-client = genai.Client(api_key=settings.gemini_api_key)
 
-client = genai.Client()
+# TODO: Move this to a separate file and create a function that takes in a prompt and returns the generated image.
+client = genai.Client(api_key=settings.gemini_api_key)
 
 prompt = ("Create a picture of a nano banana dish in a fancy restaurant with a Gemini theme")
 response = client.models.generate_content(
@@ -22,4 +22,3 @@ for part in response.parts:
 buffer = io.BytesIO()
 image.save(buffer, format="PNG")
 buffer.seek(0)
-Image.open(buffer).show()
