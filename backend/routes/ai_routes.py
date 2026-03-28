@@ -10,12 +10,16 @@ from config import settings
 from agent_tools.ai_analytics_tools import AiAnalytics
 from agent_tools.ai_handler import get_sales_in_date_range
 from datetime import datetime
+from errors.errors_auth import UserNotVerifiedError
 
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
 @router.post("/analytics", status_code=200)
 def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), current_user: TokenData = Depends(get_current_user)):
+
+    if not current_user.is_verified:
+        raise UserNotVerifiedError()
 
     #this is for adding time awarenes for llms, so that it can provide insights based on the current date and time.
     today = datetime.now().strftime("%Y-%m-%d")
@@ -53,30 +57,31 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
         item_data = ai_analytics.get_item_sales_date_range(start_date, end_date, group_by)
         return [{"date": ms.date, "item_name": ms.name, "total_quantity": ms.total_quantity} for ms in item_data]
 
-    client = genai.Client(api_key=settings.gemini_api_key)
-    tools = [get_sales_data, get_top_items]
-    config = genai.types.GenerateContentConfig(
-        tools=tools,
-        system_instruction=f"You are a helpful assistant that provides insights based on sales data." 
-        f"Use the provided tools to fetch sales data and generate insights accordingly. Today is {day_name}, {today}."
-        f"treat currency as LKR and provide insights in the context of a small street food business."
-    )
+    # client = genai.Client(api_key=settings.gemini_api_key)
+    # tools = [get_sales_data, get_top_items]
+    # config = genai.types.GenerateContentConfig(
+    #     tools=tools,
+    #     system_instruction=f"You are a helpful assistant that provides insights based on sales data." 
+    #     f"Use the provided tools to fetch sales data and generate insights accordingly. Today is {day_name}, {today}."
+    #     f"treat currency as LKR and provide insights in the context of a small street food business."
+    # )
 
-    try:
-        response = client.models.generate_content(
-            model="gemini-3.1-flash-lite-preview",
-            contents=prompt_text,
-            config=config,
-        )
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=502, detail="AI insights service is temporarily unavailable.")
+    # try:
+    #     response = client.models.generate_content(
+    #         model="gemini-3.1-flash-lite-preview",
+    #         contents=prompt_text,
+    #         config=config,
+    #     )
+    # except Exception as e:
+    #     print(e)
+    #     raise HTTPException(status_code=502, detail="AI insights service is temporarily unavailable.")
 
-    if not response.text:
-        raise HTTPException(
-            status_code=502,
-            detail="Gemini returned a function call but no final insight text.",
-        )
+    # if not response.text:
+    #     raise HTTPException(
+    #         status_code=502,
+    #         detail="Gemini returned a function call but no final insight text.",
+    #     )
+    response = "test response"
 
     return {"insights": response.text}
 

@@ -19,3 +19,7 @@ class UserAlreadyExistsError(HTTPException):
 class UserNotFoundError(HTTPException):
     def __init__(self, detail: str = "User not found"):
         super().__init__(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
+class UserNotVerifiedError(HTTPException):
+    def __init__(self, detail: str = "User email is not verified"):
+        super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail=detail)

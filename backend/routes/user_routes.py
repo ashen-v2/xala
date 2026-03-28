@@ -5,8 +5,8 @@ from sqlmodel import Session, select
 from sqlalchemy.exc import IntegrityError
 from utils import verify_password, DUMMY_HASH, hash_password
 from db.session import get_session
-from models.token_models import TokenBase, TokenData, passwordReset
-from oauth2.oauth2 import create_access_token, create_password_reset_token, verify_password_reset_token
+from models.token_models import TokenBase, TokenData, passwordReset, VerificationToken
+from oauth2.oauth2 import create_access_token, create_password_reset_token, verify_password_reset_token, create_email_verification_token, verify_email_verification_token
 from dependancies.dependancies import get_current_user
 from models.user_models import User, UserCreate, UserRead, UserUpdate
 from errors.errors_auth import InvalidCredentialsError, UserNotFoundError, UserAlreadyExistsError
@@ -37,6 +37,21 @@ async def create_user(user: UserCreate, session : Session =Depends(get_session))
     session.commit()
 
     session.refresh(db_user)
+
+    #email verification
+    verification_token = create_email_verification_token(data={"user_id": db_user.id})
+    mailtrap_client.send_email(
+        to_email=db_user.email,
+        subject="Verify Your Email Address",
+        html_content = (
+                        f"<p>Welcome to Xala! Please verify your email address by clicking the link below:</p>"
+                        f"<a href='{settings.frontend_url}/verify-email?token={verification_token}' "
+                        f"style='background-color: #4CAF50; color: white; padding: 10px 20px; "
+                        f"text-decoration: none; display: inline-block; border-radius: 5px;'>"
+                        f"Verify Email</a>"
+                    ),
+        text_content=f"Welcome to Xala! Please verify your email address using the following token"
+    )
     return db_user
 
 @router.post("/login", response_model=TokenBase)
@@ -53,7 +68,7 @@ def login( userlogin : OAuth2PasswordRequestForm = Depends(), session: Session =
         verify_password(userlogin.password, DUMMY_HASH)
         raise InvalidCredentialsError()
     
-    access_token = create_access_token(data={"user_id": user.id})
+    access_token = create_access_token(data={"user_id": user.id, "is_verified": user.verified})
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.get("/me", response_model=UserRead, status_code=200)
@@ -136,3 +151,17 @@ def reset_password(password_reset: passwordReset, session: Session = Depends(get
     session.add(user)
     session.commit()
     return {"message": "Password reset successfully."}
+
+@router.post("/verify-email", status_code=200)
+def verify_email(token: VerificationToken, session: Session = Depends(get_session)):
+
+    user_id : int = verify_email_verification_token(token.email_token)
+    user = session.exec(select(User).where(User.id == user_id)).first()
+    if not user:
+        raise UserNotFoundError()
+    if user.verified:
+        return {"message": "Email already verified."}
+    user.verified = True
+    session.add(user)
+    session.commit()
+    return {"message": "Email verified successfully."}
