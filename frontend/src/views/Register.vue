@@ -15,7 +15,7 @@ const { mutate, isPending, isError, error } = useMutation({
     return api.post('/v1/users', newUserData)
   },
   onSuccess: () => {
-    alert('Account created!')
+        alert('Account created! Please check your email to verify your address.')
     router.push('/login')
   }
 })
