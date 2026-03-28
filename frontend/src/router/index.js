@@ -3,6 +3,7 @@ import Register from '../views/Register.vue'
 import Login from '../views/Login.vue'
 import ForgotPassword from '../views/ForgotPassword.vue'
 import ResetPassword from '../views/ResetPassword.vue'
+import VerifyEmail from '../views/VerifyEmail.vue'
 import MenuManagement from '../views/MenuManagement.vue'
 import TrackSales from '../views/TrackSales.vue'
 import AnalyticsDashboard from '../views/AnalyticsDashboard.vue'
@@ -15,6 +16,7 @@ const routes = [
     { path: '/login', name: 'Login', component: Login, meta: { public: true } },
     { path: '/forgot-password', name: 'ForgotPassword', component: ForgotPassword, meta: { public: true } },
     { path: '/reset-password', name: 'ResetPassword', component: ResetPassword, meta: { public: true } },
+    { path: '/verify-email', name: 'VerifyEmail', component: VerifyEmail, meta: { public: true } },
     { path: '/track-sales', name: 'TrackSales', component: TrackSales },
     { path: '/analytics', name: 'AnalyticsDashboard', component: AnalyticsDashboard },
     { path: '/menu-management', name: 'MenuManagement', component: MenuManagement },
