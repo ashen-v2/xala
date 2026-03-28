@@ -6,7 +6,8 @@ from models.cart_models import Cart, CartItem, CartItemCreate, CartItemRead, Car
 from models.menu_models import MenuItem, MenuTable
 from dependancies.dependancies import get_current_user
 from errors.errors_cart import CartItemNotFoundException
-from errors.errors_auth import AuthorizationError
+from errors.errors_auth import AuthorizationError, UserNotVerifiedError
+
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
@@ -15,6 +16,8 @@ router = APIRouter(prefix="/cart", tags=["cart"])
 def add_to_cart(cartitem: CartItemCreate, session: Session = Depends(get_session), current_user : TokenData =Depends(get_current_user)):
     """Add an item to the cart."""
     # Check if the user already has a cart
+    if not current_user.is_verified:
+        raise UserNotVerifiedError()
     cart = session.exec(select(Cart).where(Cart.user_id == current_user.user_id)).first()
     if not cart:
         cart = Cart(user_id=current_user.user_id)
