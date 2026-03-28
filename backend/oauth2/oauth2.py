@@ -19,7 +19,7 @@ def verify_access_token(token: str) -> TokenData:
     """Verify the JWT access token and return the payload"""
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHEM])
-        return TokenData(user_id=payload.get("user_id"), role=payload.get("role"))
+        return TokenData(user_id=payload.get("user_id"), is_verified=payload.get("is_verified"))
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid token") from e
     
@@ -38,6 +38,20 @@ def verify_password_reset_token(token: str) -> TokenData:
         return TokenData(user_id=payload.get("user_id"))
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid or expired token") from e
+    
+def create_email_verification_token(data: dict):
+    """Create a JWT token for email verification."""
+    to_encode = data.copy()
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHEM)
+    return encoded_jwt
+
+def verify_email_verification_token(token: str) -> int:
+    """Verify the JWT email verification token and return the user ID."""
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHEM])
+        return payload.get("user_id")
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Invalid token") from e
     
     
 

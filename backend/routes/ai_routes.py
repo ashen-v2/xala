@@ -10,12 +10,16 @@ from config import settings
 from agent_tools.ai_analytics_tools import AiAnalytics
 from agent_tools.ai_handler import get_sales_in_date_range
 from datetime import datetime
+from errors.errors_auth import UserNotVerifiedError
 
 
 router = APIRouter(prefix="/ai", tags=["ai"])
 
 @router.post("/analytics", status_code=200)
 def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), current_user: TokenData = Depends(get_current_user)):
+
+    if not current_user.is_verified:
+        raise UserNotVerifiedError()
 
     #this is for adding time awarenes for llms, so that it can provide insights based on the current date and time.
     today = datetime.now().strftime("%Y-%m-%d")
@@ -79,6 +83,7 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
         )
 
     return {"insights": response.text}
+
 
 
 

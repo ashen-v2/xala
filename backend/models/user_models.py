@@ -14,6 +14,7 @@ class UserCreate(UserBase):
 class User(UserCreate, table=True):
     __tablename__ = "users"
     id: int = Field(default=None, primary_key=True)
+    verified: bool = Field(default=False, nullable=False)
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
 
 class UserRead(UserBase):
