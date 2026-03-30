@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from typing import Any
 from sqlmodel import Session
 from models.token_models import TokenData
+from models.user_models import User, UserAiRequests
 from models.AiAgent_models import Prompt
 from db.session import get_session
 from dependancies.dependancies import get_current_user
@@ -9,8 +10,9 @@ from google import genai
 from config import settings
 from agent_tools.ai_analytics_tools import AiAnalytics
 from agent_tools.ai_handler import get_sales_in_date_range
-from datetime import datetime
-from errors.errors_auth import UserNotVerifiedError
+from datetime import datetime, timezone
+from errors.errors_auth import UserNotVerifiedError, UserNotFoundError
+from errors.errors_agent import AiRequestLimitExceededError
 
 
 router = APIRouter(prefix="/ai", tags=["ai"])
@@ -20,10 +22,18 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
 
     if not current_user.is_verified:
         raise UserNotVerifiedError()
+    
+    user : User = session.get(User, current_user.user_id)
+
+    if not user:
+        raise UserNotFoundError()
+    
+    if user.airequests and user.airequests.request_count >= 3:
+        raise AiRequestLimitExceededError("You have exceeded the maximum number of AI requests. Please try again tommorrow.")
 
     #this is for adding time awarenes for llms, so that it can provide insights based on the current date and time.
-    today = datetime.now().strftime("%Y-%m-%d")
-    day_name = datetime.now().strftime("%A")
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    day_name = datetime.now(timezone.utc).strftime("%A")
 
     prompt_text = prompt.data.strip()
     if not prompt_text:
@@ -81,8 +91,19 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
             status_code=502,
             detail="Gemini returned a function call but no final insight text.",
         )
-
+    
+    user.airequests
+    if not user.airequests:
+        new_ai_requests = UserAiRequests(user_id=current_user.user_id, request_count=0)
+        user.airequests = new_ai_requests
+        session.add(user.airequests)
+    if user.airequests.request_count >= 3:
+        raise AiRequestLimitExceededError("You have exceeded the maximum number of AI requests. Please try again tommorrow.")
+    user.airequests.request_count += 1
+    user.airequests.last_request_time = datetime.now(timezone.utc)
+    session.commit()
     return {"insights": response.text}
+    
 
 
 
