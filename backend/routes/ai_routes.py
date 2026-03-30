@@ -28,7 +28,7 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
     if not user:
         raise UserNotFoundError()
     
-    if user.airequests and user.airequests.request_count >= 5:
+    if user.airequests and user.airequests.request_count >= 3:
         raise AiRequestLimitExceededError("You have exceeded the maximum number of AI requests. Please try again tommorrow.")
 
     #this is for adding time awarenes for llms, so that it can provide insights based on the current date and time.
@@ -97,7 +97,8 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
         new_ai_requests = UserAiRequests(user_id=current_user.user_id, request_count=0)
         user.airequests = new_ai_requests
         session.add(user.airequests)
-
+    if user.airequests.request_count >= 3:
+        raise AiRequestLimitExceededError("You have exceeded the maximum number of AI requests. Please try again tommorrow.")
     user.airequests.request_count += 1
     user.airequests.last_request_time = datetime.now(timezone.utc)
     session.commit()
