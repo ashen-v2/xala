@@ -31,7 +31,7 @@ class UserAiRequests(SQLModel, table=True):
     user_id: int = Field(foreign_key="users.id", nullable=False)
     request_count: int = Field(default=0, nullable=False, lt=6)
     last_request_time: datetime | None = Field(default_factory=lambda: datetime.now(timezone.utc), nullable=False)
-    user: User = Relationship(back_populates="ai_requests")
+    user: User = Relationship(back_populates="airequests")
 
 
 
