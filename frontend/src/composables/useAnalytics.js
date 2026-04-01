@@ -257,91 +257,38 @@ export function useAnalytics() {
     }
   })
 
-  const monthlyQuantityChart = computed(() => {
-    const monthTotals = new Map(MONTH_LABELS.map((label) => [label, 0]))
-
-    for (const row of monthlyItemSales.value) {
-      const monthLabel = String(row.month ?? '').slice(0, 3)
-      const current = monthTotals.get(monthLabel) ?? 0
-      monthTotals.set(monthLabel, current + Number(row.total_quantity ?? 0))
+  const itemRowsForScope = computed(() => {
+    if (scope.value === 'weekly') {
+      return weeklyItemSales.value
     }
 
-    const labels = MONTH_LABELS
-    const values = labels.map((monthLabel) => monthTotals.get(monthLabel) ?? 0)
-
-    return { labels, values }
-  })
-
-  const weeklyItemQuantityChart = computed(() => {
-    const totalsByWeek = new Map()
-
-    for (const row of weeklyItemSales.value) {
-      const weekKey = String(row.week ?? '')
-      const current = totalsByWeek.get(weekKey) ?? 0
-      totalsByWeek.set(weekKey, current + Number(row.total_quantity ?? 0))
+    if (scope.value === 'daily') {
+      return dailyItemSalesByWeek.value.flatMap((group) => group.rows ?? [])
     }
 
-    const sortedWeekKeys = [...totalsByWeek.keys()].sort()
-    const values = [0, 0, 0, 0]
-
-    sortedWeekKeys.slice(0, 4).forEach((weekKey, index) => {
-      values[index] = totalsByWeek.get(weekKey) ?? 0
-    })
-
-    return { labels: WEEK_LABELS, values }
-  })
-
-  const dailyItemSeriesByWeek = computed(() => {
-    const weekLookup = new Map()
-
-    dailyItemSalesByWeek.value.forEach((group) => {
-      const totals = new Map(DAY_LABELS.map((label) => [label, 0]))
-
-      group.rows.forEach((row) => {
-        const rawDay = String(row.day ?? '')
-        const parts = rawDay.split('-')
-        const dayLabel = parts[parts.length - 1]
-        if (totals.has(dayLabel)) {
-          const current = totals.get(dayLabel) ?? 0
-          totals.set(dayLabel, current + Number(row.total_quantity ?? 0))
-        }
-      })
-
-      weekLookup.set(group.week, DAY_LABELS.map((dayLabel) => totals.get(dayLabel) ?? 0))
-    })
-
-    return [...selectedWeeks.value].sort((a, b) => a - b).map((weekValue) => ({
-      name: `Week ${weekValue}`,
-      data: weekLookup.get(weekValue) ?? [0, 0, 0, 0, 0, 0, 0]
-    }))
+    return monthlyItemSales.value
   })
 
   const itemScopeChart = computed(() => {
-    if (scope.value === 'daily') {
-      return {
-        categories: DAY_LABELS,
-        series: dailyItemSeriesByWeek.value
-      }
+    const itemTotals = new Map()
+
+    for (const row of itemRowsForScope.value) {
+      const itemName = String(row.item_name ?? '').trim()
+      if (!itemName) continue
+      const current = itemTotals.get(itemName) ?? 0
+      itemTotals.set(itemName, current + Number(row.total_quantity ?? 0))
     }
 
-    if (scope.value === 'weekly') {
-      return {
-        categories: weeklyItemQuantityChart.value.labels,
-        series: [
-          {
-            name: 'Items Sold',
-            data: weeklyItemQuantityChart.value.values
-          }
-        ]
-      }
-    }
+    const sortedEntries = [...itemTotals.entries()].sort(([left], [right]) =>
+      left.localeCompare(right)
+    )
 
     return {
-      categories: monthlyQuantityChart.value.labels,
+      categories: sortedEntries.map(([itemName]) => itemName),
       series: [
         {
           name: 'Items Sold',
-          data: monthlyQuantityChart.value.values
+          data: sortedEntries.map(([, total]) => total)
         }
       ]
     }

@@ -198,9 +198,7 @@ const monthlyItemOptions = computed(() => ({
     }
   },
   legend: {
-    show: scope.value === 'daily',
-    position: 'top',
-    horizontalAlign: 'left'
+    show: false
   },
   grid: {
     borderColor: '#f4c7a7'
@@ -212,9 +210,9 @@ const monthlyItemSeries = computed(() => [
 ])
 
 const itemChartSubtitle = computed(() => {
-  if (scope.value === 'daily') return 'Daily item quantity by selected week(s)'
-  if (scope.value === 'weekly') return 'Weekly item quantity for selected month'
-  return 'Monthly item quantity for selected year'
+  if (scope.value === 'daily') return 'Daily View'
+  if (scope.value === 'weekly') return 'Weekly View'
+  return 'Monthly View'
 })
 
 const itemChartState = computed(() => {
@@ -336,6 +334,9 @@ const itemChartState = computed(() => {
           >
             Daily
           </button>
+          <button type="button" class="ai-insights-trigger" @click="openAiInsightsPanel">
+            Get AI Insights
+          </button>
         </div>
 
         <div class="filter-row">
@@ -368,9 +369,6 @@ const itemChartState = computed(() => {
           </button>
         </div>
 
-        <button type="button" class="ai-insights-trigger" @click="openAiInsightsPanel">
-          Get AI Insights
-        </button>
       </div>
     </div>
 
@@ -608,6 +606,8 @@ const itemChartState = computed(() => {
 
 .scope-switch {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.35rem;
 }
 
@@ -683,13 +683,15 @@ const itemChartState = computed(() => {
 }
 
 .ai-insights-trigger {
-  border: 1px solid #ef4444;
-  background: #ffe4cf;
-  color: #7b341c;
-  border-radius: 0.75rem;
-  font-size: 0.76rem;
+  border: 1px solid  #00F7FF;
+  background:  #fdede0;
+  color: #d744ff;
+  border-radius: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 800;
-  padding: 0.45rem 0.7rem;
+  line-height: 1.15;
+  padding: 0.34rem 0.55rem;
+  white-space: nowrap;
 }
 
 .order-drawer-backdrop {
