@@ -85,6 +85,42 @@ export function useAnalytics() {
     }
   })
 
+  const weeklyItemSalesQuery = useQuery({
+    queryKey: computed(() => ['analytics', 'weekly-item-sales', year.value, month.value]),
+    queryFn: async () => {
+      const response = await api.get(`/v1/analytics/weekly-item-sales/${year.value}/${month.value}`)
+      return response.data
+    },
+    enabled: computed(() => scope.value === 'weekly')
+  })
+
+  const dailyItemSalesComparisonQuery = useQuery({
+    queryKey: computed(() => [
+      'analytics',
+      'daily-item-sales-comparison',
+      year.value,
+      month.value,
+      [...selectedWeeks.value].sort((a, b) => a - b).join('-')
+    ]),
+    queryFn: async () => {
+      const sortedWeeks = [...selectedWeeks.value].sort((a, b) => a - b)
+      const responses = await Promise.all(
+        sortedWeeks.map(async (weekValue) => {
+          const response = await api.get(
+            `/v1/analytics/daily-item-sales/${year.value}/${month.value}/${weekValue}`
+          )
+          return {
+            week: weekValue,
+            rows: response.data
+          }
+        })
+      )
+
+      return responses
+    },
+    enabled: computed(() => scope.value === 'daily' && selectedWeeks.value.length > 0)
+  })
+
   const ordersQuery = useQuery({
     queryKey: computed(() => ['orders', 'recent', ordersLimit.value]),
     queryFn: async () => {
@@ -130,6 +166,8 @@ export function useAnalytics() {
   const dailySalesByWeek = computed(() => dailySalesComparisonQuery.data.value ?? [])
   const topItems = computed(() => topItemsQuery.data.value ?? [])
   const monthlyItemSales = computed(() => monthlyItemSalesQuery.data.value ?? [])
+  const weeklyItemSales = computed(() => weeklyItemSalesQuery.data.value ?? [])
+  const dailyItemSalesByWeek = computed(() => dailyItemSalesComparisonQuery.data.value ?? [])
   const orders = computed(() => ordersQuery.data.value ?? [])
 
   const monthlyPaddedValues = computed(() => {
@@ -234,6 +272,81 @@ export function useAnalytics() {
     return { labels, values }
   })
 
+  const weeklyItemQuantityChart = computed(() => {
+    const totalsByWeek = new Map()
+
+    for (const row of weeklyItemSales.value) {
+      const weekKey = String(row.week ?? '')
+      const current = totalsByWeek.get(weekKey) ?? 0
+      totalsByWeek.set(weekKey, current + Number(row.total_quantity ?? 0))
+    }
+
+    const sortedWeekKeys = [...totalsByWeek.keys()].sort()
+    const values = [0, 0, 0, 0]
+
+    sortedWeekKeys.slice(0, 4).forEach((weekKey, index) => {
+      values[index] = totalsByWeek.get(weekKey) ?? 0
+    })
+
+    return { labels: WEEK_LABELS, values }
+  })
+
+  const dailyItemSeriesByWeek = computed(() => {
+    const weekLookup = new Map()
+
+    dailyItemSalesByWeek.value.forEach((group) => {
+      const totals = new Map(DAY_LABELS.map((label) => [label, 0]))
+
+      group.rows.forEach((row) => {
+        const rawDay = String(row.day ?? '')
+        const parts = rawDay.split('-')
+        const dayLabel = parts[parts.length - 1]
+        if (totals.has(dayLabel)) {
+          const current = totals.get(dayLabel) ?? 0
+          totals.set(dayLabel, current + Number(row.total_quantity ?? 0))
+        }
+      })
+
+      weekLookup.set(group.week, DAY_LABELS.map((dayLabel) => totals.get(dayLabel) ?? 0))
+    })
+
+    return [...selectedWeeks.value].sort((a, b) => a - b).map((weekValue) => ({
+      name: `Week ${weekValue}`,
+      data: weekLookup.get(weekValue) ?? [0, 0, 0, 0, 0, 0, 0]
+    }))
+  })
+
+  const itemScopeChart = computed(() => {
+    if (scope.value === 'daily') {
+      return {
+        categories: DAY_LABELS,
+        series: dailyItemSeriesByWeek.value
+      }
+    }
+
+    if (scope.value === 'weekly') {
+      return {
+        categories: weeklyItemQuantityChart.value.labels,
+        series: [
+          {
+            name: 'Items Sold',
+            data: weeklyItemQuantityChart.value.values
+          }
+        ]
+      }
+    }
+
+    return {
+      categories: monthlyQuantityChart.value.labels,
+      series: [
+        {
+          name: 'Items Sold',
+          data: monthlyQuantityChart.value.values
+        }
+      ]
+    }
+  })
+
   const totalRevenue = computed(() => {
     return revenueChart.value.series.reduce(
       (seriesSum, series) =>
@@ -258,8 +371,10 @@ export function useAnalytics() {
 
   const hasTopItemsData = computed(() => topItemsChart.value.values.some((point) => point > 0))
 
-  const hasMonthlyItemVolume = computed(() =>
-    monthlyQuantityChart.value.values.some((point) => Number(point ?? 0) > 0)
+  const hasItemScopeData = computed(() =>
+    itemScopeChart.value.series.some((series) =>
+      series.data.some((point) => Number(point ?? 0) > 0)
+    )
   )
 
   function toggleWeek(weekValue) {
@@ -331,15 +446,17 @@ export function useAnalytics() {
     dailySalesByWeek,
     topItems,
     monthlyItemSales,
+    weeklyItemSales,
+    dailyItemSalesByWeek,
     orders,
     orderDetails: computed(() => orderDetailsQuery.data.value ?? null),
     orderItems: computed(() => orderItemsQuery.data.value ?? []),
     revenueChart,
     topItemsChart,
-    monthlyQuantityChart,
+    itemScopeChart,
     hasRevenueData,
     hasTopItemsData,
-    hasMonthlyItemVolume,
+    hasItemScopeData,
     totalRevenue,
     totalOrders,
     isLoadingAnalytics: computed(
@@ -348,7 +465,9 @@ export function useAnalytics() {
         weeklySalesQuery.isLoading.value ||
         dailySalesComparisonQuery.isLoading.value ||
         topItemsQuery.isLoading.value ||
-        monthlyItemSalesQuery.isLoading.value
+        monthlyItemSalesQuery.isLoading.value ||
+        weeklyItemSalesQuery.isLoading.value ||
+        dailyItemSalesComparisonQuery.isLoading.value
     ),
     isLoadingOrders: ordersQuery.isLoading,
     isLoadingOrderDetails: computed(
@@ -360,7 +479,9 @@ export function useAnalytics() {
         weeklySalesQuery.error.value ||
         dailySalesComparisonQuery.error.value ||
         topItemsQuery.error.value ||
-        monthlyItemSalesQuery.error.value
+        monthlyItemSalesQuery.error.value ||
+        weeklyItemSalesQuery.error.value ||
+        dailyItemSalesComparisonQuery.error.value
     ),
     ordersError: ordersQuery.error,
     orderDetailsError: computed(() => orderDetailsQuery.error.value || orderItemsQuery.error.value),

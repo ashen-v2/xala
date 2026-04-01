@@ -16,10 +16,10 @@ const {
   selectedOrderId,
   revenueChart,
   topItemsChart,
-  monthlyQuantityChart,
+  itemScopeChart,
   hasRevenueData,
   hasTopItemsData,
-  hasMonthlyItemVolume,
+  hasItemScopeData,
   totalRevenue,
   totalOrders,
   isLoadingAnalytics,
@@ -176,7 +176,7 @@ const monthlyItemOptions = computed(() => ({
     toolbar: { show: false },
     foreColor: '#6a4b36'
   },
-  colors: ['#9a3b18'],
+  colors: ['#9a3b18', '#c2410c', '#ea580c', '#f97316'],
   dataLabels: { enabled: false },
   plotOptions: {
     bar: {
@@ -185,7 +185,7 @@ const monthlyItemOptions = computed(() => ({
     }
   },
   xaxis: {
-    categories: monthlyQuantityChart.value.labels,
+    categories: itemScopeChart.value.categories,
     labels: {
       style: {
         fontSize: '11px'
@@ -197,17 +197,35 @@ const monthlyItemOptions = computed(() => ({
       formatter: (value) => Number(value).toFixed(0)
     }
   },
+  legend: {
+    show: scope.value === 'daily',
+    position: 'top',
+    horizontalAlign: 'left'
+  },
   grid: {
     borderColor: '#f4c7a7'
   }
 }))
 
 const monthlyItemSeries = computed(() => [
-  {
-    name: 'Items Sold',
-    data: monthlyQuantityChart.value.values
-  }
+  ...itemScopeChart.value.series
 ])
+
+const itemChartSubtitle = computed(() => {
+  if (scope.value === 'daily') return 'Daily item quantity by selected week(s)'
+  if (scope.value === 'weekly') return 'Weekly item quantity for selected month'
+  return 'Monthly item quantity for selected year'
+})
+
+const itemChartState = computed(() => {
+  if (isLoadingAnalytics.value) {
+    return 'Loading data...'
+  }
+  if (!hasItemScopeData.value) {
+    return 'No item quantity data for selected period.'
+  }
+  return ''
+})
 </script>
 
 <template>
@@ -265,12 +283,12 @@ const monthlyItemSeries = computed(() => [
 
       <section class="chart-card">
         <div class="chart-head">
-          <h2>Monthly Item Volume</h2>
-          <p class="chart-subtitle">12-month baseline always visible</p>
+          <h2>Food Item Sales</h2>
+          <p class="chart-subtitle">{{ itemChartSubtitle }}</p>
         </div>
         <div class="chart-wrap">
           <apexchart type="bar" height="260" :options="monthlyItemOptions" :series="monthlyItemSeries" />
-          <p v-if="!hasMonthlyItemVolume" class="chart-overlay-msg">No monthly volume data yet.</p>
+          <p v-if="itemChartState" class="chart-overlay-msg">{{ itemChartState }}</p>
         </div>
       </section>
 
