@@ -85,6 +85,42 @@ export function useAnalytics() {
     }
   })
 
+  const weeklyItemSalesQuery = useQuery({
+    queryKey: computed(() => ['analytics', 'weekly-item-sales', year.value, month.value]),
+    queryFn: async () => {
+      const response = await api.get(`/v1/analytics/weekly-item-sales/${year.value}/${month.value}`)
+      return response.data
+    },
+    enabled: computed(() => scope.value === 'weekly')
+  })
+
+  const dailyItemSalesComparisonQuery = useQuery({
+    queryKey: computed(() => [
+      'analytics',
+      'daily-item-sales-comparison',
+      year.value,
+      month.value,
+      [...selectedWeeks.value].sort((a, b) => a - b).join('-')
+    ]),
+    queryFn: async () => {
+      const sortedWeeks = [...selectedWeeks.value].sort((a, b) => a - b)
+      const responses = await Promise.all(
+        sortedWeeks.map(async (weekValue) => {
+          const response = await api.get(
+            `/v1/analytics/daily-item-sales/${year.value}/${month.value}/${weekValue}`
+          )
+          return {
+            week: weekValue,
+            rows: response.data
+          }
+        })
+      )
+
+      return responses
+    },
+    enabled: computed(() => scope.value === 'daily' && selectedWeeks.value.length > 0)
+  })
+
   const ordersQuery = useQuery({
     queryKey: computed(() => ['orders', 'recent', ordersLimit.value]),
     queryFn: async () => {
@@ -130,6 +166,8 @@ export function useAnalytics() {
   const dailySalesByWeek = computed(() => dailySalesComparisonQuery.data.value ?? [])
   const topItems = computed(() => topItemsQuery.data.value ?? [])
   const monthlyItemSales = computed(() => monthlyItemSalesQuery.data.value ?? [])
+  const weeklyItemSales = computed(() => weeklyItemSalesQuery.data.value ?? [])
+  const dailyItemSalesByWeek = computed(() => dailyItemSalesComparisonQuery.data.value ?? [])
   const orders = computed(() => ordersQuery.data.value ?? [])
 
   const monthlyPaddedValues = computed(() => {
@@ -219,19 +257,41 @@ export function useAnalytics() {
     }
   })
 
-  const monthlyQuantityChart = computed(() => {
-    const monthTotals = new Map(MONTH_LABELS.map((label) => [label, 0]))
-
-    for (const row of monthlyItemSales.value) {
-      const monthLabel = String(row.month ?? '').slice(0, 3)
-      const current = monthTotals.get(monthLabel) ?? 0
-      monthTotals.set(monthLabel, current + Number(row.total_quantity ?? 0))
+  const itemRowsForScope = computed(() => {
+    if (scope.value === 'weekly') {
+      return weeklyItemSales.value
     }
 
-    const labels = MONTH_LABELS
-    const values = labels.map((monthLabel) => monthTotals.get(monthLabel) ?? 0)
+    if (scope.value === 'daily') {
+      return dailyItemSalesByWeek.value.flatMap((group) => group.rows ?? [])
+    }
 
-    return { labels, values }
+    return monthlyItemSales.value
+  })
+
+  const itemScopeChart = computed(() => {
+    const itemTotals = new Map()
+
+    for (const row of itemRowsForScope.value) {
+      const itemName = String(row.item_name ?? '').trim()
+      if (!itemName) continue
+      const current = itemTotals.get(itemName) ?? 0
+      itemTotals.set(itemName, current + Number(row.total_quantity ?? 0))
+    }
+
+    const sortedEntries = [...itemTotals.entries()].sort(([left], [right]) =>
+      left.localeCompare(right)
+    )
+
+    return {
+      categories: sortedEntries.map(([itemName]) => itemName),
+      series: [
+        {
+          name: 'Items Sold',
+          data: sortedEntries.map(([, total]) => total)
+        }
+      ]
+    }
   })
 
   const totalRevenue = computed(() => {
@@ -258,8 +318,10 @@ export function useAnalytics() {
 
   const hasTopItemsData = computed(() => topItemsChart.value.values.some((point) => point > 0))
 
-  const hasMonthlyItemVolume = computed(() =>
-    monthlyQuantityChart.value.values.some((point) => Number(point ?? 0) > 0)
+  const hasItemScopeData = computed(() =>
+    itemScopeChart.value.series.some((series) =>
+      series.data.some((point) => Number(point ?? 0) > 0)
+    )
   )
 
   function toggleWeek(weekValue) {
@@ -331,15 +393,17 @@ export function useAnalytics() {
     dailySalesByWeek,
     topItems,
     monthlyItemSales,
+    weeklyItemSales,
+    dailyItemSalesByWeek,
     orders,
     orderDetails: computed(() => orderDetailsQuery.data.value ?? null),
     orderItems: computed(() => orderItemsQuery.data.value ?? []),
     revenueChart,
     topItemsChart,
-    monthlyQuantityChart,
+    itemScopeChart,
     hasRevenueData,
     hasTopItemsData,
-    hasMonthlyItemVolume,
+    hasItemScopeData,
     totalRevenue,
     totalOrders,
     isLoadingAnalytics: computed(
@@ -348,7 +412,9 @@ export function useAnalytics() {
         weeklySalesQuery.isLoading.value ||
         dailySalesComparisonQuery.isLoading.value ||
         topItemsQuery.isLoading.value ||
-        monthlyItemSalesQuery.isLoading.value
+        monthlyItemSalesQuery.isLoading.value ||
+        weeklyItemSalesQuery.isLoading.value ||
+        dailyItemSalesComparisonQuery.isLoading.value
     ),
     isLoadingOrders: ordersQuery.isLoading,
     isLoadingOrderDetails: computed(
@@ -360,7 +426,9 @@ export function useAnalytics() {
         weeklySalesQuery.error.value ||
         dailySalesComparisonQuery.error.value ||
         topItemsQuery.error.value ||
-        monthlyItemSalesQuery.error.value
+        monthlyItemSalesQuery.error.value ||
+        weeklyItemSalesQuery.error.value ||
+        dailyItemSalesComparisonQuery.error.value
     ),
     ordersError: ordersQuery.error,
     orderDetailsError: computed(() => orderDetailsQuery.error.value || orderItemsQuery.error.value),

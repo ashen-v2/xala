@@ -396,6 +396,23 @@ body {
   gap: 0.42rem;
 }
 
+@media (max-width: 767px) {
+  .auth-nav {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .auth-nav__button {
+    width: 100%;
+    white-space: nowrap;
+    font-size: 0.7rem;
+    padding: 0.42rem 0.45rem;
+    text-align: center;
+  }
+}
+
 @media (min-width: 768px) {
   .auth-nav__button {
     font-size: 0.76rem;

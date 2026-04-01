@@ -16,10 +16,10 @@ const {
   selectedOrderId,
   revenueChart,
   topItemsChart,
-  monthlyQuantityChart,
+  itemScopeChart,
   hasRevenueData,
   hasTopItemsData,
-  hasMonthlyItemVolume,
+  hasItemScopeData,
   totalRevenue,
   totalOrders,
   isLoadingAnalytics,
@@ -176,7 +176,7 @@ const monthlyItemOptions = computed(() => ({
     toolbar: { show: false },
     foreColor: '#6a4b36'
   },
-  colors: ['#9a3b18'],
+  colors: ['#9a3b18', '#c2410c', '#ea580c', '#f97316'],
   dataLabels: { enabled: false },
   plotOptions: {
     bar: {
@@ -185,7 +185,7 @@ const monthlyItemOptions = computed(() => ({
     }
   },
   xaxis: {
-    categories: monthlyQuantityChart.value.labels,
+    categories: itemScopeChart.value.categories,
     labels: {
       style: {
         fontSize: '11px'
@@ -197,17 +197,33 @@ const monthlyItemOptions = computed(() => ({
       formatter: (value) => Number(value).toFixed(0)
     }
   },
+  legend: {
+    show: false
+  },
   grid: {
     borderColor: '#f4c7a7'
   }
 }))
 
 const monthlyItemSeries = computed(() => [
-  {
-    name: 'Items Sold',
-    data: monthlyQuantityChart.value.values
-  }
+  ...itemScopeChart.value.series
 ])
+
+const itemChartSubtitle = computed(() => {
+  if (scope.value === 'daily') return 'Daily View'
+  if (scope.value === 'weekly') return 'Weekly View'
+  return 'Monthly View'
+})
+
+const itemChartState = computed(() => {
+  if (isLoadingAnalytics.value) {
+    return 'Loading data...'
+  }
+  if (!hasItemScopeData.value) {
+    return 'No item quantity data for selected period.'
+  }
+  return ''
+})
 </script>
 
 <template>
@@ -265,12 +281,12 @@ const monthlyItemSeries = computed(() => [
 
       <section class="chart-card">
         <div class="chart-head">
-          <h2>Monthly Item Volume</h2>
-          <p class="chart-subtitle">12-month baseline always visible</p>
+          <h2>Food Item Sales</h2>
+          <p class="chart-subtitle">{{ itemChartSubtitle }}</p>
         </div>
         <div class="chart-wrap">
           <apexchart type="bar" height="260" :options="monthlyItemOptions" :series="monthlyItemSeries" />
-          <p v-if="!hasMonthlyItemVolume" class="chart-overlay-msg">No monthly volume data yet.</p>
+          <p v-if="itemChartState" class="chart-overlay-msg">{{ itemChartState }}</p>
         </div>
       </section>
 
@@ -318,6 +334,9 @@ const monthlyItemSeries = computed(() => [
           >
             Daily
           </button>
+          <button type="button" class="ai-insights-trigger" @click="openAiInsightsPanel">
+            Get AI Insights
+          </button>
         </div>
 
         <div class="filter-row">
@@ -350,9 +369,6 @@ const monthlyItemSeries = computed(() => [
           </button>
         </div>
 
-        <button type="button" class="ai-insights-trigger" @click="openAiInsightsPanel">
-          Get AI Insights
-        </button>
       </div>
     </div>
 
@@ -590,6 +606,8 @@ const monthlyItemSeries = computed(() => [
 
 .scope-switch {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 0.35rem;
 }
 
@@ -665,13 +683,15 @@ const monthlyItemSeries = computed(() => [
 }
 
 .ai-insights-trigger {
-  border: 1px solid #ef4444;
-  background: #ffe4cf;
-  color: #7b341c;
-  border-radius: 0.75rem;
-  font-size: 0.76rem;
+  border: 1px solid  #00F7FF;
+  background:  #fdede0;
+  color: #d744ff;
+  border-radius: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 800;
-  padding: 0.45rem 0.7rem;
+  line-height: 1.15;
+  padding: 0.34rem 0.55rem;
+  white-space: nowrap;
 }
 
 .order-drawer-backdrop {

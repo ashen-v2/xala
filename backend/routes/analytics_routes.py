@@ -50,3 +50,44 @@ def get_monthly_item_sales(year: int, session: Session = Depends(get_session), c
     analytics = FoodAnalytics(session, current_user.user_id)
     monthly_item_sales = analytics.get_monthly_sales(year)
     return [{"month": mis.month.strftime("%b"), "item_name": mis.name, "total_quantity": mis.total_quantity} for mis in monthly_item_sales]
+
+@router.get("/weekly-item-sales/{year}/{month}", status_code=200)
+def get_weekly_item_sales(
+    year: int,
+    month: int,
+    session: Session = Depends(get_session),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """Get weekly item sales for each item for the current user."""
+    analytics = FoodAnalytics(session, current_user.user_id)
+    weekly_item_sales = analytics.get_weekly_sales(year, month)
+    return [
+        {
+            "week": wis.week.strftime("%Y-%m-%d"),
+            "item_name": wis.name,
+            "total_quantity": wis.total_quantity
+        }
+        for wis in weekly_item_sales
+    ]
+
+@router.get("/daily-item-sales/{year}/{month}/{week}", status_code=200)
+def get_daily_item_sales(
+    year: int,
+    month: int,
+    week: int,
+    session: Session = Depends(get_session),
+    current_user: TokenData = Depends(get_current_user)
+):
+    """Get daily item sales for each item for the current user."""
+    date_obj = datetime(year, month, week * 7)
+    week_number = date_obj.isocalendar()[1]
+    analytics = FoodAnalytics(session, current_user.user_id)
+    daily_item_sales = analytics.get_daily_sales(year, week_number)
+    return [
+        {
+            "day": dis.day.strftime("%d-%a"),
+            "item_name": dis.name,
+            "total_quantity": dis.total_quantity
+        }
+        for dis in daily_item_sales
+    ]
