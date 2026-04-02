@@ -7,7 +7,7 @@ const router = useRouter()
 
 const navItems = [
   { label: 'Record Sales', path: '/track-sales' },
-  { label: 'Manage Menu', path: '/menu-management' },
+  { label: 'Edit Menu', path: '/menu-management' },
   { label: 'Analytics', path: '/analytics' },
   { label: 'Profile', path: '/profile' }
 ]

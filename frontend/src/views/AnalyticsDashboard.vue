@@ -210,9 +210,9 @@ const monthlyItemSeries = computed(() => [
 ])
 
 const itemChartSubtitle = computed(() => {
-  if (scope.value === 'daily') return 'Daily View'
-  if (scope.value === 'weekly') return 'Weekly View'
-  return 'Monthly View'
+  if (scope.value === 'daily') return 'Weekly view'
+  if (scope.value === 'weekly') return 'Monthly view'
+  return 'Yearly view'
 })
 
 const itemChartState = computed(() => {
