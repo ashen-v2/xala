@@ -10,7 +10,7 @@ from google import genai
 from config import settings
 from agent_tools.ai_analytics_tools import AiAnalytics
 from agent_tools.ai_handler import get_sales_in_date_range
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from errors.errors_auth import UserNotVerifiedError, UserNotFoundError
 from errors.errors_agent import AiRequestLimitExceededError
 
@@ -27,9 +27,17 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
 
     if not user:
         raise UserNotFoundError()
-    
+
     if user.airequests and user.airequests.request_count >= 3:
-        raise AiRequestLimitExceededError("You have exceeded the maximum number of AI requests. Please try again tommorrow.")
+
+        if user.airequests.last_request_time + timedelta(days=1) < datetime.now():
+            user.airequests.request_count = 0
+            session.add(user.airequests)
+            session.commit()
+        else:
+            time_remaining  = str(user.airequests.last_request_time + timedelta(days=1) - datetime.now()).split(".")[0]
+            raise AiRequestLimitExceededError(f"You have exceeded the maximum number of AI requests. Please try again in {time_remaining}.")
+    
 
     #this is for adding time awarenes for llms, so that it can provide insights based on the current date and time.
     today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
@@ -100,7 +108,7 @@ def ai_analytics(prompt: Prompt, session: Session = Depends(get_session), curren
     if user.airequests.request_count >= 3:
         raise AiRequestLimitExceededError("You have exceeded the maximum number of AI requests. Please try again tommorrow.")
     user.airequests.request_count += 1
-    user.airequests.last_request_time = datetime.now(timezone.utc)
+    user.airequests.last_request_time = datetime.now()
     session.commit()
     return {"insights": response.text}
     
