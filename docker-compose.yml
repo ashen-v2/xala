@@ -1,0 +1,31 @@
+services:
+
+  db:
+    image: postgres:18
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "0000"
+      POSTGRES_DB: xala
+
+    volumes:
+      - dbvolume:/var/lib/postgresql
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    ports:
+      - 8000:8000
+
+    command: /bin/sh -c "alembic upgrade heads && fastapi run main.py"
+    
+    environment:
+       DATABASE_USER: postgres
+       DATABASE_PASSWORD: "0000"
+       DATABASE_HOST: db
+       DATABASE_NAME: xala
+
+volumes:
+  dbvolume:

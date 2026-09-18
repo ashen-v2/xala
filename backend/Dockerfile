@@ -8,8 +8,6 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-
-
 EXPOSE 8000
 
 ENV DATABASE_URL=postgresql+asyncpg://postgres:password@db:5432/postgres
