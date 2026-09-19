@@ -20,12 +20,28 @@ services:
       - 8000:8000
 
     command: /bin/sh -c "alembic upgrade heads && fastapi run main.py"
+
+    depends_on:
+      - db
     
     environment:
        DATABASE_USER: postgres
        DATABASE_PASSWORD: "0000"
        DATABASE_HOST: db
        DATABASE_NAME: xala
+
+  srvr:
+    image: nginx:1.31.6-alpine
+
+    ports:
+      - 80:80
+    
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./frontend/dist:/usr/share/nginx/html:ro
+
+    depends_on:
+      - backend
 
 volumes:
   dbvolume:
