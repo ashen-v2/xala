@@ -16,8 +16,6 @@ router = APIRouter(prefix="/cart", tags=["cart"])
 def add_to_cart(cartitem: CartItemCreate, session: Session = Depends(get_session), current_user : TokenData =Depends(get_current_user)):
     """Add an item to the cart."""
     # Check if the user already has a cart
-    if not current_user.is_verified:
-        raise UserNotVerifiedError()
     cart = session.exec(select(Cart).where(Cart.user_id == current_user.user_id)).first()
     if not cart:
         cart = Cart(user_id=current_user.user_id)
