@@ -12,7 +12,7 @@ const password = ref('')
 
 const { mutate, isPending, isError, error } = useMutation({
   mutationFn: (newUserData) => {
-    return api.post('/v1/users', newUserData)
+    return api.post('/v1/users/', newUserData)
   },
   onSuccess: () => {
         alert('Account created! Please check your email to verify your address.')
