@@ -56,5 +56,6 @@ jobs:
         working-directory: ./frontend
         shell: bash
         run: |
+          pwd
           npm ci
           npm run build
