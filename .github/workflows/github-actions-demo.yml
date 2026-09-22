@@ -7,17 +7,8 @@ on:
 
 jobs:
   job1:
-    env:
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: 0000
-      DATABASE_HOST: localhost
-      DATABASE_NAME: xala
-      SECRET_KEY: placeholder-secret-key
-      ALGORITHM: HS256
-      ACCESS_TOKEN_EXPIRE_MINUTES: 60
-      GEMINI_API_KEY: placeholder-gemini-api-key
-      MAIL_API_KEY: placeholder-mail-api-key
-      FRONTEND_URL: http://localhost:5173
+    environment:
+      name: test_env
       
     runs-on: ubuntu-latest
     steps:
