@@ -53,7 +53,7 @@ jobs:
           cache: 'npm'
       
       - name: build frontend
-        working-directory: ./frontend
+        working-directory: /home/runner/work/xala/xala/frontend
         shell: bash
         run: |
           pwd
