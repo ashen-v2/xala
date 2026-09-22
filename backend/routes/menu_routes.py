@@ -59,8 +59,6 @@ def create_menu_item(menu_item: MenuItemCreate, current_user: TokenData = Depend
         raise UserNotFoundError()
     user_menu : MenuTable = session.exec(select(MenuTable).where(MenuTable.user_id == user.id)).first()
 
-    if not user.verified and user_menu.item_count >= 5:
-        raise ExceededMenuItemLimitError(detail="Unverified users can only create up to 5 menu items. Please verify your account to create more.")
     if not user_menu:
         user_menu = MenuTable(user_id=user.id)
         session.add(user_menu)
@@ -69,6 +67,9 @@ def create_menu_item(menu_item: MenuItemCreate, current_user: TokenData = Depend
         menu_id = user_menu.id
     else:
         menu_id = user_menu.id
+
+    if not user.verified and user_menu.item_count >= 5:
+            raise ExceededMenuItemLimitError(detail="Unverified users can only create up to 5 menu items. Please verify your account to create more.")
 
     if user_menu.item_count >= 20:
         raise ExceededMenuItemLimitError()
