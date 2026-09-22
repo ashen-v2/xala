@@ -51,11 +51,12 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
       
       - name: build frontend
-        working-directory: /home/runner/work/xala/xala/frontend
+        working-directory: ./frontend
         shell: bash
         run: |
           pwd
-          npm ci
+          npm install
           npm run build
