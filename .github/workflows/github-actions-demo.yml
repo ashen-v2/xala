@@ -10,6 +10,18 @@ jobs:
     environment:
       name: test_env
       
+    env:
+      DATABASE_USER: ${secrets.DATABASE_USER}
+      DATABASE_PASSWORD: ${secrets.DATABASE_PASSWORD}
+      DATABASE_HOST: ${secrets.DATABASE_HOST}
+      DATABASE_NAME: ${secrets.DATABASE_NAME}
+      SECRET_KEY: ${secrets.SECRET_KEY}
+      ALGORITHM: ${secrets.ALGORITHM}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${secrets.ACCESS_TOKEN_EXPIRE_MINUTES}
+      GEMINI_API_KEY: ${secrets.GEMINI_API_KEY}
+      MAIL_API_KEY: ${secrets.MAIL_API_KEY}
+      FRONTEND_URL: ${secrets.FRONTEND_URL}
+      
     runs-on: ubuntu-latest
     steps:
       - name: checkout code
