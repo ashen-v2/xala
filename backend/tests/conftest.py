@@ -1,5 +1,3 @@
-from urllib import response
-
 import pytest
 from main import app
 from fastapi.testclient import TestClient
@@ -48,7 +46,8 @@ def mock_user_login(mock_user_create):
 
 @pytest.fixture(scope="function")
 def mock_user_header(mock_user_login):
-    return {"Authorization": f"Bearer {mock_user_login}"}
+    access_token = mock_user_login
+    return {"Authorization": f"Bearer {access_token}"}
 
 
     
