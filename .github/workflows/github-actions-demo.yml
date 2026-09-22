@@ -82,7 +82,6 @@ jobs:
           files: docker-compose.yml
           push: true
           set: |
-            db.tags=${{ secrets.DOCKER_USER_NAME }}/xala-db:latest
             backend.tags=${{ secrets.DOCKER_USER_NAME }}/xala-backend:latest
             srvr.tags=${{ secrets.DOCKER_USER_NAME }}/xala-frontend:latest
             
