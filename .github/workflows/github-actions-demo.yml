@@ -106,10 +106,12 @@ jobs:
             --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
             --comment "Deploying Xala application" \
-            --parameters 'commands=["cd /home/ashen/xala",
+            --parameters 'commands=["cd /home/ashen",
+                                    "sudo rm -rf xala"
                                     "sudo su ashen",
-                                    "docker-compose -f docker-compose-production.yml pull",
-                                    "docker-compose -f docker-compose-production.yml up -d",
+                                    "git clone https://github.com/ashen-v2/xala.git"
+                                    "docker-compose -f xala/docker-compose-production.yml pull",
+                                    "docker-compose -f xala/docker-compose-production.yml up -d",
                                     "docker system prune"]' \
 
 
