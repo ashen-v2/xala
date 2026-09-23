@@ -8,6 +8,9 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-0000}
       POSTGRES_DB: ${DATABASE_NAME:-xala}
 
+    ports:
+      exposed: 5432
+
     volumes:
       - dbvolume:/var/lib/postgresql
 
@@ -19,12 +22,10 @@ services:
       start_period: 10s
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ashenv2/xala_backend:latest
 
     ports:
-      - 8000:8000
+      exposed: 8000
 
     command: /bin/sh -c "alembic upgrade heads && fastapi run main.py"
 
@@ -45,13 +46,10 @@ services:
       FRONTEND_URL: "${FRONTEND_URL:-http://localhost}"
 
   srvr:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
+    image: ashenv2/xala_frontend:latest
 
     ports:
       - 80:80
-     
 
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost/api/}
