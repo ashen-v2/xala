@@ -19,10 +19,10 @@ services:
       start_period: 10s
 
   backend:
-    image: ashenv2/xala_backend:latest
+    image: ${DOCKER_USER_NAME:-ashenv2}/xala-backend:latest
 
-    ports:
-      exposed: 8000
+    expose:
+      - "8000"
 
     command: /bin/sh -c "alembic upgrade heads && fastapi run main.py"
 
@@ -43,7 +43,7 @@ services:
       FRONTEND_URL: "${FRONTEND_URL:-http://localhost}"
 
   srvr:
-    image: ashenv2/xala_frontend:latest
+    image: ${DOCKER_USER_NAME:-ashenv2}/xala-frontend:latest
 
     ports:
       - 80:80

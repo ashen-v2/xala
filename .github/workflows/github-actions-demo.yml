@@ -102,15 +102,35 @@ jobs:
 
       - name: Deploy to AWS
         run: |
-          aws ssm send-command \
+          command_id=$(aws ssm send-command \
             --instance-ids ${{ secrets.EC2_INSTANCE_ID }} \
             --document-name "AWS-RunShellScript" \
             --comment "Deploying Xala application" \
-            --parameters 'commands=["cd /home/ashen",
-                                    "sudo rm -rf xala",
-                                    "sudo -u ashen -H git clone https://github.com/ashen-v2/xala.git",
-                                    "sudo -u ashen -H docker compose -f xala/docker-compose-production.yml pull",
-                                    "sudo -u ashen -H docker compose -f xala/docker-compose-production.yml up -d"
-                                    ]' \
+            --parameters 'commands=["set -eu", "cd /home/ashen", "sudo rm -rf xala", "sudo -u ashen -H git clone https://github.com/ashen-v2/xala.git", "sudo -u ashen -H sh -c \"cd /home/ashen/xala && export DOCKER_USER_NAME=${{ secrets.DOCKER_USER_NAME }} && docker compose -f docker-compose-production.yml pull\"", "sudo -u ashen -H sh -c \"cd /home/ashen/xala && export DOCKER_USER_NAME=${{ secrets.DOCKER_USER_NAME }} && docker compose -f docker-compose-production.yml up -d\""]' \
+            --query 'Command.CommandId' \
+            --output text)
+
+          set +e
+          aws ssm wait command-executed \
+            --command-id "$command_id" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}"
+          set -e
+
+          status=$(aws ssm get-command-invocation \
+            --command-id "$command_id" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --query 'Status' \
+            --output text)
+
+          aws ssm get-command-invocation \
+            --command-id "$command_id" \
+            --instance-id "${{ secrets.EC2_INSTANCE_ID }}" \
+            --query '{Status:Status,Output:StandardOutputContent,Error:StandardErrorContent}' \
+            --output json
+
+          if [[ "$status" != "Success" ]]; then
+            echo "Remote deployment failed with status: $status"
+            exit 1
+          fi
 
 
