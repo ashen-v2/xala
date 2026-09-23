@@ -108,10 +108,9 @@ jobs:
             --comment "Deploying Xala application" \
             --parameters 'commands=["cd /home/ashen",
                                     "sudo rm -rf xala",
-                                    "sudo su ashen",
-                                    "git clone https://github.com/ashen-v2/xala.git",
-                                    "docker compose -f xala/docker-compose-production.yml pull",
-                                    "docker compose -f xala/docker-compose-production.yml up -d"
+                                    "sudo -u ashen -Hgit clone https://github.com/ashen-v2/xala.git",
+                                    "sudo -u ashen -H docker compose -f xala/docker-compose-production.yml pull",
+                                    "sudo -u ashen -H docker compose -f xala/docker-compose-production.yml up -d"
                                     ]' \
 
 
