@@ -107,9 +107,9 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Deploying Xala application" \
             --parameters 'commands=["cd /home/ashen",
-                                    "sudo rm -rf xala"
+                                    "sudo rm -rf xala",
                                     "sudo su ashen",
-                                    "git clone https://github.com/ashen-v2/xala.git"
+                                    "git clone https://github.com/ashen-v2/xala.git",
                                     "docker-compose -f xala/docker-compose-production.yml pull",
                                     "docker-compose -f xala/docker-compose-production.yml up -d",
                                     "docker system prune"]' \
