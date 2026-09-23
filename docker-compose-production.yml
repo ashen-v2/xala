@@ -6,10 +6,7 @@ services:
     environment:
       POSTGRES_USER: ${DATABASE_USER:-postgres}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-0000}
-      POSTGRES_DB: ${DATABASE_NAME:-xala}
-
-    ports:
-      exposed: 5432
+      POSTGRES_DB: ${DATABASE_NAME:-xala} 
 
     volumes:
       - dbvolume:/var/lib/postgresql
