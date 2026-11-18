@@ -9,7 +9,7 @@ RUN npm ci
 
 COPY frontend/. .
 
-ENV VITE_API_BASE_URL=http://localhost/api/
+ENV VITE_API_BASE_URL=http://18.142.125.15/api/
 RUN npm run build
 
 FROM nginx:1.31.6-alpine
